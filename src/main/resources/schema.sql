@@ -1,14 +1,16 @@
-CREATE TABLE user (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+
+CREATE TABLE  person (
+  id INT NOT NULL AUTO_INCREMENT,
   username VARCHAR(45) NULL,
   password TEXT NULL,
-  algorithm VARCHAR(45) NULL
+  algorithm VARCHAR(45) NULL,
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE  authority (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(45) NULL,
-  user INT NULL,
+  user_fk INT NULL,
   PRIMARY KEY (id)
 );
 

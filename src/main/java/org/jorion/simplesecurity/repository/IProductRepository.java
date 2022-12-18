@@ -1,6 +1,6 @@
-package org.jorion.spring.simplesecurity.repositories;
+package org.jorion.simplesecurity.repository;
 
-import org.jorion.spring.simplesecurity.entities.Product;
+import org.jorion.simplesecurity.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

@@ -1,6 +1,6 @@
-package org.jorion.spring.simplesecurity.controllers;
+package org.jorion.simplesecurity.controller;
 
-import org.jorion.spring.simplesecurity.services.ProductService;
+import org.jorion.simplesecurity.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -16,7 +16,6 @@ public class MainPageController
 	@Autowired
 	private ProductService productService;
 
-	// --- Methods ---
 	@GetMapping("/main")
 	public String main(Authentication a, Model model)
 	{

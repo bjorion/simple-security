@@ -13,7 +13,7 @@
 
 	<logger name="org.springframework.security" level="DEBUG" />
 	
-	<logger name="org.springframework.data" level="DEBUG" />
+	<logger name="org.springframework.data" level="INFO" />
 	
 	<logger name="org.h2" level="DEBUG" />
 
