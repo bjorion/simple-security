@@ -1,5 +1,7 @@
 # simple-security
-POC Simple Spring security application
+
+* POC Simple Spring security application
+* Use JPA Authentication
 
 ### Start
 
