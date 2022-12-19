@@ -2,8 +2,7 @@ package org.jorion.simplesecurity.service;
 
 import java.util.function.Supplier;
 
-import org.jorion.simplesecurity.config.CustomUserDetails;
-import org.jorion.simplesecurity.entity.User;
+import org.jorion.simplesecurity.entity.SecurityUserDetails;
 import org.jorion.simplesecurity.repository.IUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +29,17 @@ public class JpaUserDetailsService implements UserDetailsService
 	 * Override {@code Object loadUserByUsername(...)}
 	 */
 	@Override
-	public CustomUserDetails loadUserByUsername(String username)
+	public SecurityUserDetails loadUserByUsername(String username)
 	{
 		LOG.debug("Retrieving info about [{}]", username);
 		Supplier<UsernameNotFoundException> s = () -> new UsernameNotFoundException("Problem during authentication! (user not found)");
-		User user = userRepository.findUserByUsername(username).orElseThrow(s);
+		
+		SecurityUserDetails su = userRepository
+		        .findUserByUsername(username)
+		        .map(SecurityUserDetails::new)
+		        .orElseThrow(s);
 
-		return new CustomUserDetails(user);
+		return su;
 	}
 
 }

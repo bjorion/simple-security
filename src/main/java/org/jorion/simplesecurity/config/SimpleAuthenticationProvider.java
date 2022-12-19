@@ -1,5 +1,6 @@
 package org.jorion.simplesecurity.config;
 
+import org.jorion.simplesecurity.entity.SecurityUserDetails;
 import org.jorion.simplesecurity.service.JpaUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
  * Implements custom authentication logic.
  */
 @Service
+@Deprecated
 public class SimpleAuthenticationProvider implements AuthenticationProvider
 {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleAuthenticationProvider.class);
@@ -37,7 +39,7 @@ public class SimpleAuthenticationProvider implements AuthenticationProvider
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        CustomUserDetails user = userDetailsService.loadUserByUsername(username);
+        SecurityUserDetails user = userDetailsService.loadUserByUsername(username);
 
         switch (user.getUser().getAlgorithm()) {
         case BCRYPT:
@@ -49,7 +51,7 @@ public class SimpleAuthenticationProvider implements AuthenticationProvider
         throw new BadCredentialsException("Bad credentials (unknown algorithm)");
     }
 
-    private Authentication checkPassword(CustomUserDetails user, String rawPassword, PasswordEncoder encoder)
+    private Authentication checkPassword(SecurityUserDetails user, String rawPassword, PasswordEncoder encoder)
     {
         Authentication a;
         if (encoder.matches(rawPassword, user.getPassword())) {

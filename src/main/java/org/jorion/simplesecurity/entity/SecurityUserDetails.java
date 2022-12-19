@@ -1,9 +1,8 @@
-package org.jorion.simplesecurity.config;
+package org.jorion.simplesecurity.entity;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import org.jorion.simplesecurity.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,11 +10,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 /**
  * Implement the class {@link UserDetails} and wraps the {@link User} entity.
  */
-public class CustomUserDetails implements UserDetails
+public class SecurityUserDetails implements UserDetails
 {
     private final User user;
 
-    public CustomUserDetails(User user)
+    public SecurityUserDetails(User user)
     {
         this.user = user;
     }
