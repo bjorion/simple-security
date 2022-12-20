@@ -1,7 +1,12 @@
 # simple-security
 
-* POC Simple Spring security application
-* Use JPA Authentication
+POC to test various authentication methods using Spring Security 6
+
+[[_TOC_]]
+
+### Methods
+
+* LoginForm + JPA Authentication
 
 ### Start
 
