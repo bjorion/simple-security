@@ -31,7 +31,6 @@ public class JpaUserDetailsService implements UserDetailsService
 	@Override
 	public SecurityUserDetails loadUserByUsername(String username)
 	{
-		LOG.debug("Retrieving info about [{}]", username);
 		Supplier<UsernameNotFoundException> s = () -> new UsernameNotFoundException("Problem during authentication! (user not found)");
 		
 		SecurityUserDetails su = userRepository
@@ -39,6 +38,7 @@ public class JpaUserDetailsService implements UserDetailsService
 		        .map(SecurityUserDetails::new)
 		        .orElseThrow(s);
 
+		LOG.debug("Retrieved info about [{}]: [{}]", username, su.toString());
 		return su;
 	}
 

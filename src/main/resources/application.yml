@@ -16,3 +16,6 @@ spring:
       enabled: true
       path: /h2-console
 
+rsa:
+  private-key: "classpath:certs/private.pem"
+  public-key: "classpath:certs/public.pem"
