@@ -4,19 +4,19 @@
 
 ## Security Filters
 
-1. org.springframework.security.web.session.DisableEncodeUrlFilter@85b9f9c,
-1. org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@26a004ed,
-1. org.springframework.security.web.context.SecurityContextPersistenceFilter@332610ad,
-1. org.springframework.security.web.header.HeaderWriterFilter@7e577eed,
-1. org.springframework.security.web.authentication.logout.LogoutFilter@4fae4c3b,
-1. xxx
-1. xxx
-1. org.springframework.security.web.savedrequest.RequestCacheAwareFilter@294ab038,
-1. org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@13e5c53c,
-1. org.springframework.security.web.authentication.AnonymousAuthenticationFilter@21457b14,
-1. org.springframework.security.web.session.SessionManagementFilter@5dc8448b,
-1. org.springframework.security.web.access.ExceptionTranslationFilter@3615f8d9,
-1. org.springframework.security.web.access.intercept.FilterSecurityInterceptor@3533d790
+1. org.springframework.security.web.session.DisableEncodeUrlFilter
+1. org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
+1. org.springframework.security.web.context.SecurityContextPersistenceFilter
+1. org.springframework.security.web.header.HeaderWriterFilter
+1. org.springframework.security.web.authentication.logout.LogoutFilter
+1. (org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter)
+1. (org.springframework.security.web.authentication.www.BasicAuthenticationFilter)
+1. org.springframework.security.web.savedrequest.RequestCacheAwareFilter
+1. org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
+1. org.springframework.security.web.authentication.AnonymousAuthenticationFilter
+1. org.springframework.security.web.session.SessionManagementFilter
+1. org.springframework.security.web.access.ExceptionTranslationFilter
+1. org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 
 .
 
@@ -64,10 +64,10 @@
 
 ### 5. UserDetailsService (implementations)
 
-* InMemoryUserDetailsManager ---> UserDetailsManager ---> UserDetailsService 
-* JdbcUserDetailsManager ---> UserDetailsManager ---> UserDetailsService
-* JpaUserDetailsService ---> UserDetailsService 
-* (custom).UserDetailsServiceImpl ---> UserDetailsService
+* __InMemoryUserDetailsManager__ ---> UserDetailsManager ---> UserDetailsService 
+* __JdbcUserDetailsManager__ ---> UserDetailsManager ---> UserDetailsService
+* __JpaUserDetailsService__ ---> UserDetailsService 
+* __(custom).UserDetailsServiceImpl__ ---> UserDetailsService
 
 .
 

@@ -47,23 +47,23 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		
 		// @formatter:off
-        http
-            // necessary to display the H2 console
-            .headers(headers -> headers.frameOptions(config -> config.sameOrigin()))
-            .csrf(csrf -> csrf.disable());
-        
+		http
+			// necessary to display the H2 console
+			.headers(headers -> headers.frameOptions(config -> config.sameOrigin()))
+			.csrf(csrf -> csrf.disable());
+
 		setHttpLoginMethod(http, LoginType.BASIC);
 		setHttpLoginMethod(http, LoginType.OAUTH2);
 
 		http.authorizeHttpRequests(request -> request
 			.requestMatchers("/error").permitAll()
-            .requestMatchers("/done").permitAll()
-            .requestMatchers("/access-denied").permitAll()
-            .requestMatchers("/actuator/**").permitAll()
-            .requestMatchers("/h2-console/**").permitAll()
-            .requestMatchers("/favicon.ico").permitAll()	
-            .anyRequest().authenticated()
-	    );
+			.requestMatchers("/done").permitAll()
+			.requestMatchers("/access-denied").permitAll()
+			.requestMatchers("/actuator/**").permitAll()
+			.requestMatchers("/h2-console/**").permitAll()
+			.requestMatchers("/favicon.ico").permitAll()	
+			.anyRequest().authenticated()
+		);
 		
 		http.userDetailsService(jpaUserDetailsService);
 		
@@ -71,7 +71,7 @@ public class SecurityConfig {
 			.logoutUrl("/logout")
 			.logoutSuccessUrl("/done")
 			.invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID");
+			.deleteCookies("JSESSIONID");
 		// @formatter:on
 
 		return http.build();
