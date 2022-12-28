@@ -9,8 +9,8 @@
 1. org.springframework.security.web.context.SecurityContextPersistenceFilter
 1. org.springframework.security.web.header.HeaderWriterFilter
 1. org.springframework.security.web.authentication.logout.LogoutFilter
-1. (org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter)
-1. (org.springframework.security.web.authentication.www.BasicAuthenticationFilter)
+1. __org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter__
+1. __org.springframework.security.web.authentication.www.BasicAuthenticationFilter__
 1. org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 1. org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 1. org.springframework.security.web.authentication.AnonymousAuthenticationFilter
@@ -22,22 +22,26 @@
 
 ## Generate a key with OpenSSL
 
-* KEYPAIR: openssl genrsa -out **keypair.pem** 2048
-* PUBLIC KEY: openssl rsa -in **keypair.pem** -pubout -out **public.pem**
-* PRIVATE KEY: openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in **keypair.pem** -out **private.pem**
+* KEYPAIR: `openssl genrsa -out keypair.pem 2048`
+* PUBLIC KEY: `openssl rsa -in keypair.pem -pubout -out public.pem`
+* PRIVATE KEY: `openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out private.pem`
 * SYMMETRIC KEY: NimbusJwtDecoder.withJwkSetUri
 
 .
 
 ## Spring Security Classes
 
-### 1. Overview
+### 1. Overview of the main classes
+
+User
 
 * __UserDetails__: interface, provides core user information
 * __UserDetailsService__: interface which loads user-specific data. (loadByUsername)
-* __UserDetailsManager__: interface, extends of UserDetailsService to create/update users
+* __UserDetailsManager__: interface, extends UserDetailsService to create/update users
 * __User__: implementation of __UserDetails__
-* ____
+
+Authentication
+
 * __AbstractAuthenticationToken__: Base Class for Authentication objects
 * __AbstractAuthenticationProcessingFilter__: filter for HTTP based authentication requests
 * __AbstractUserDetailsAuthenticationProvider__: provider designed for UsernamePasswordAuthenticationToken
@@ -79,7 +83,7 @@
 	- Authorization: Basic am9objoxMjM0NQ==
 	- Token class: UsernamePasswordAuthenticationToken
 
-**BasicAuthenticationFilter** → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService
+`BasicAuthenticationFilter → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService`
 
 .
 
@@ -91,7 +95,7 @@
 	- password = ...
 	- Token class: UsernamePasswordAuthenticationToken
 
-**UsernamePasswordAuthenticationFilter** → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService
+`UsernamePasswordAuthenticationFilter → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService`
 
 .
 
@@ -106,12 +110,16 @@
 	- Authorization: Bearer Token: (jwt) => returns main page
 	- Token class: BearerTokenAuthenticationToken
 
-**BearerTokenAuthenticationFilter** → ProviderManager → JwtAuthenticationProvider
+`BearerTokenAuthenticationFilter → ProviderManager → JwtAuthenticationProvider`
 
 .
 
 ## References
 
 * Spring Security JWT: How to Secure your Spring Boot Rest API with JWT
-	- https://www.youtube.com/watch?v=KYNR5js2cXE&list=WL&index=2&t=541s
+	- https://www.youtube.com/watch?v=KYNR5js2cXE
+* Spring Security JWT: How to authenticate with a username and password
+	- https://www.youtube.com/watch?v=UaB-0e76LdQ
+* Spring Security JWT: Implementing the client (frontend) using JWT
+	- https://www.youtube.com/watch?v=6kFzJZCW1Qw
 	

@@ -42,6 +42,14 @@ public class SecurityConfig {
 
 	@Autowired
 	private JpaUserDetailsService jpaUserDetailsService;
+	
+//	@Bean
+//	public AuthenticationManager authManager(UserDetailsService userDetailsService) {
+//		
+//		var authProvider = new DaoAuthenticationProvider();
+//		authProvider.setUserDetailsService(userDetailsService);
+//		return new ProviderManager(authProvider);
+//	}
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
