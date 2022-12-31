@@ -1,0 +1,11 @@
+
+spring:
+  security:
+    oauth2:
+      client:
+        # class ClientRegistration in oauth2-client
+        registration:
+          github:
+            client-id: 97c23f4437bdf7d3077c
+            # Do not commit the secre below
+            client-secret: (client secret)

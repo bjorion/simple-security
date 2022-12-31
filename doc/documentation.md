@@ -9,8 +9,22 @@
 1. org.springframework.security.web.context.SecurityContextPersistenceFilter
 1. org.springframework.security.web.header.HeaderWriterFilter
 1. org.springframework.security.web.authentication.logout.LogoutFilter
-1. __org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter__
-1. __org.springframework.security.web.authentication.www.BasicAuthenticationFilter__
+
+
+**OAuth Client**
+* org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter
+* org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter
+
+**OAuth RS**
+* org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
+
+**BASIC**
+* org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+
+**FORM**
+* org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+
+
 1. org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 1. org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 1. org.springframework.security.web.authentication.AnonymousAuthenticationFilter
@@ -18,7 +32,7 @@
 1. org.springframework.security.web.access.ExceptionTranslationFilter
 1. org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 
-.
+--- 
 
 ## Generate a key with OpenSSL
 
@@ -27,7 +41,21 @@
 * PRIVATE KEY: `openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out private.pem`
 * SYMMETRIC KEY: NimbusJwtDecoder.withJwkSetUri
 
-.
+
+```java
+
+	KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+	kpg.initialize(2048);
+	KeyPair kp = kpg.generateKeyPair();
+	RSAPrivateKey privateKey = (RSAPrivateKey) kp.getPrivate();
+	RSAPublicKey publicKey = (RSAPublicKey) kp.getPublic();
+	
+	RSAKey key = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
+	JWKSet keySet = new JWKSet(key);
+	return new ImmutableJwkSet<>(keySet); // returns JWKSource
+```
+
+---
 
 ## Spring Security Classes
 
@@ -73,7 +101,7 @@ Authentication
 * __JpaUserDetailsService__ ---> UserDetailsService 
 * __(custom).UserDetailsServiceImpl__ ---> UserDetailsService
 
-.
+---
 
 ## Login
 
@@ -85,8 +113,6 @@ Authentication
 
 `BasicAuthenticationFilter → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService`
 
-.
-
 ### 2. LoginForm
 
 - POST /hello
@@ -96,8 +122,6 @@ Authentication
 	- Token class: UsernamePasswordAuthenticationToken
 
 `UsernamePasswordAuthenticationFilter → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService`
-
-.
 
 ### 3. Auth2ResourceServer
 
@@ -112,7 +136,31 @@ Authentication
 
 `BearerTokenAuthenticationFilter → ProviderManager → JwtAuthenticationProvider`
 
-.
+---
+
+## Spring OAuth2
+
+[Spring Security modules](https://docs.spring.io/spring-security/site/docs/5.2.5.RELEASE/reference/html/modules.html)
+
+* spring-security-oauth2-authorization-server
+	- AuthorizationServerSettings
+
+* spring-security-oauth2-resource-server
+	- JwtAuthenticationProvider ---> AuthenticationProvider
+	- BearerTokenAuthenticationToken ---> AbstractAuthenticationToken
+	- BearerTokenAuthenticationFilter ---> OncePerRequestFilter
+	
+* spring-security-oauth2-client
+	- OAuth2LoginAuthenticationFilter
+
+---
+
+## OAuth2 Providers
+
+* GitHub: https://github.com/settings/developers
+	- OAuthApps (client id; client secret)
+
+---
 
 ## References
 
@@ -122,4 +170,5 @@ Authentication
 	- https://www.youtube.com/watch?v=UaB-0e76LdQ
 * Spring Security JWT: Implementing the client (frontend) using JWT
 	- https://www.youtube.com/watch?v=6kFzJZCW1Qw
-	
+* The new Spring Security (OAuth2 AS)
+	- https://www.youtube.com/watch?v=LlVy9Roh_bQ

@@ -34,7 +34,9 @@ public class SecurityConfig {
 
 		FORM, 
 		
-		OAUTH2
+		OAUTH2_RS,
+		
+		OAUTH2_CLIENT;
 	};
 
 	@Autowired
@@ -60,8 +62,8 @@ public class SecurityConfig {
 			.headers(headers -> headers.frameOptions(config -> config.sameOrigin()))
 			.csrf(csrf -> csrf.disable());
 
-		setHttpLoginMethod(http, LoginType.BASIC);
-		setHttpLoginMethod(http, LoginType.OAUTH2);
+		setHttpLoginMethod(http, LoginType.FORM);
+		setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);
 
 		http.authorizeHttpRequests(request -> request
 			.requestMatchers("/error").permitAll()
@@ -97,9 +99,15 @@ public class SecurityConfig {
 			http.formLogin(form -> form.defaultSuccessUrl("/main", true));
 			// we need a session with the form login
 			break;
-		case OAUTH2:
+		case OAUTH2_RS:
 			// jwt: requires a JwtDecoder
 			http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+			break;
+		case OAUTH2_CLIENT:
+			// use OAuth 2.0 and/or OpenID 1.0
+			// Requires a bean of type ClientRegistrationRepository
+			// In application.yml: spring.security.oauth2.client.registration: (...)
+			http.oauth2Login().defaultSuccessUrl("/main", true);
 			break;
 		default:
 			break;
