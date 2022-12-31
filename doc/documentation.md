@@ -61,6 +61,11 @@
 
 ### 1. Overview of the main classes
 
+Filter
+
+* __GenericFilterBean__: anything that wants to be a Filter in the Spring world
+* __OncePerRequestFilter__: even if the same filter is registered multiple times, it will be executed only once
+
 User
 
 * __UserDetails__: interface, provides core user information
@@ -107,7 +112,7 @@ Authentication
 
 ### 1. Basic
 
-- GET /hello
+- GET /main
 	- Authorization: Basic am9objoxMjM0NQ==
 	- Token class: UsernamePasswordAuthenticationToken
 
@@ -115,7 +120,7 @@ Authentication
 
 ### 2. LoginForm
 
-- POST /hello
+- POST /login
 	- Body = form-data
 	- username = ...
 	- password = ...
@@ -164,6 +169,18 @@ Authentication
 
 ## References
 
+### Sites
+
+* Spring Security documentation
+	- https://docs.spring.io/spring-security/reference/servlet/architecture.html
+
+### Books
+
+* Spring Security in Action
+	- https://www.manning.com/books/spring-security-in-action
+	
+### Videos
+
 * Spring Security JWT: How to Secure your Spring Boot Rest API with JWT
 	- https://www.youtube.com/watch?v=KYNR5js2cXE
 * Spring Security JWT: How to authenticate with a username and password
@@ -172,3 +189,5 @@ Authentication
 	- https://www.youtube.com/watch?v=6kFzJZCW1Qw
 * The new Spring Security (OAuth2 AS)
 	- https://www.youtube.com/watch?v=LlVy9Roh_bQ
+* Spring Security, demystified
+	- https://www.youtube.com/watch?v=iJ2muJniikY
