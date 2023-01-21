@@ -34,6 +34,9 @@
 
 --- 
 
+* Asymmetric Key Pair: One key to sign the token and a different key is used to verify the signature
+* Symmetric Key: The same key is used for signing the token and verifying the signature
+
 ## Generate a key with OpenSSL
 
 * KEYPAIR: `openssl genrsa -out keypair.pem 2048`
@@ -43,16 +46,18 @@
 
 
 ```java
+	// How to generate a pair of public/private key programmatically
+	JWKSource generateJwtSource() {
+		KeyPairGenerator kpg=KeyPairGenerator.getInstance("RSA");
+		kpg.initialize(2048);
+		KeyPair kp=kpg.generateKeyPair();
+		RSAPrivateKey privateKey=(RSAPrivateKey)kp.getPrivate();
+		RSAPublicKey publicKey=(RSAPublicKey)kp.getPublic();
 
-	KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-	kpg.initialize(2048);
-	KeyPair kp = kpg.generateKeyPair();
-	RSAPrivateKey privateKey = (RSAPrivateKey) kp.getPrivate();
-	RSAPublicKey publicKey = (RSAPublicKey) kp.getPublic();
-	
-	RSAKey key = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
-	JWKSet keySet = new JWKSet(key);
-	return new ImmutableJwkSet<>(keySet); // returns JWKSource
+		RSAKey key=new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
+		JWKSet keySet=new JWKSet(key);
+		return new ImmutableJwkSet<>(keySet); // returns JWKSource
+	}
 ```
 
 ---
@@ -112,15 +117,19 @@ Authentication
 
 ### 1. Basic
 
-- GET /main
+- You need to enable **Basic** authentication in SecurityConfig.java:
+  	`setHttpLoginMethod(http, LoginType.BASIC);`
+- GET localhost:8080/main
 	- Authorization: Basic am9objoxMjM0NQ==
 	- Token class: UsernamePasswordAuthenticationToken
 
 `BasicAuthenticationFilter → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService`
 
-### 2. LoginForm
+### 2. Form
 
-- POST /login
+- You need to enable **Form** authentication in SecurityConfig.java:
+  	`setHttpLoginMethod(http, LoginType.FORM);`
+- POST localhost:8080/login
 	- Body = form-data
 	- username = ...
 	- password = ...
@@ -128,18 +137,24 @@ Authentication
 
 `UsernamePasswordAuthenticationFilter → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService`
 
-### 3. Auth2ResourceServer
+### 3. OAuth2 ResourceServer
 
-- POST /token (with basic authentication) => returns JWT
+- POST localhost:8080/token (with basic authentication) => returns JWT
 - JWTDecoder: 
 	- **symmetric** (NimbusJwtDecoder.withSecretKey) or 
-	- **assymetric** (NimbusJwtDecoder.withPublicKey) (encryption = private key; decryption = public key)
+	- **asymmetric** (NimbusJwtDecoder.withPublicKey) (encryption = private key; decryption = public key)
 - With the JWT:
 - GET localhost:8080/main
 	- Authorization: Bearer Token: (jwt) => returns main page
 	- Token class: BearerTokenAuthenticationToken
 
 `BearerTokenAuthenticationFilter → ProviderManager → JwtAuthenticationProvider`
+
+### 4. OAuth2 Client
+
+- You need to enable **OAuth2 Client** authentication in SecurityConfig.java:
+  `setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);`
+- In the login page, there will be a link to Authenticate via GITHUB if application.yml is correctly configured
 
 ---
 
@@ -183,6 +198,8 @@ Authentication
 
 * Spring Security JWT: How to Secure your Spring Boot Rest API with JWT
 	- https://www.youtube.com/watch?v=KYNR5js2cXE
+* Spring Security JWT: Secure your REST APIs with Spring Security & Symmetric Key Encryption
+	- https://www.youtube.com/watch?v=66DtzkhBlSA
 * Spring Security JWT: How to authenticate with a username and password
 	- https://www.youtube.com/watch?v=UaB-0e76LdQ
 * Spring Security JWT: Implementing the client (frontend) using JWT

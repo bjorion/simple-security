@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +27,12 @@ public class OAuthController {
 		LOG.info("Token requested for user [{}]", auth.getName());
 		String token = tokenService.generateToken(auth);
 		return token;
+	}
+
+	@GetMapping("/user")
+	public String user(Authentication authentication) {
+
+		return authentication.toString();
 	}
 
 }

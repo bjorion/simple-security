@@ -7,5 +7,5 @@ spring:
         registration:
           github:
             client-id: 97c23f4437bdf7d3077c
-            # Do not commit the secre below
+            # Do not commit the secret below
             client-secret: (client secret)

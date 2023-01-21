@@ -24,8 +24,9 @@ public class MainPageController {
 
 	@GetMapping("/main")
 	public String main(Authentication auth, Model model) {
-		String name = logInfo(auth);
 
+		String name = logInfo(auth);
+		LOG.info("/main, name [{}]", name);
 		model.addAttribute("username", name);
 		model.addAttribute("products", productService.findAll());
 		return "main.html";

@@ -1,16 +1,24 @@
 package org.jorion.simplesecurity.config;
 
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.jorion.simplesecurity.service.JpaUserDetailsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -24,9 +32,13 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
+import javax.crypto.spec.SecretKeySpec;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+	private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
 
 	enum LoginType {
 
@@ -36,14 +48,17 @@ public class SecurityConfig {
 		
 		OAUTH2_RS,
 		
-		OAUTH2_CLIENT;
-	};
+		OAUTH2_CLIENT
+	}
 
 	@Autowired
 	private RsaKeyProperties rsaKeys;
 
 	@Autowired
 	private JpaUserDetailsService jpaUserDetailsService;
+
+	@Value("jwt.symmetric-key")
+	private String jwtSymmetricKey;
 	
 //	@Bean
 //	public AuthenticationManager authManager(UserDetailsService userDetailsService) {
@@ -59,11 +74,12 @@ public class SecurityConfig {
 		// @formatter:off
 		http
 			// necessary to display the H2 console
-			.headers(headers -> headers.frameOptions(config -> config.sameOrigin()))
-			.csrf(csrf -> csrf.disable());
+			.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+			.csrf(AbstractHttpConfigurer::disable);
 
-		setHttpLoginMethod(http, LoginType.FORM);
-		setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);
+		setHttpLoginMethod(http, LoginType.BASIC);
+		setHttpLoginMethod(http, LoginType.OAUTH2_RS);
+		disableSession(http);
 
 		http.authorizeHttpRequests(request -> request
 			.requestMatchers("/error").permitAll()
@@ -92,21 +108,24 @@ public class SecurityConfig {
 		switch(loginType) {
 		case BASIC:
 			// with basic, there is no "successUrl"
+			LOG.info("Setting up BASIC security");
 			http.httpBasic(Customizer.withDefaults());
-			http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 			break;
 		case FORM:
+			LOG.info("Setting up FORM security");
 			http.formLogin(form -> form.defaultSuccessUrl("/main", true));
 			// we need a session with the form login
 			break;
 		case OAUTH2_RS:
-			// jwt: requires a JwtDecoder
+			// jwt: requires a JwtDecoder bean
+			LOG.info("Setting up OAUTH2 RESOURCE SERVER security");
 			http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 			break;
 		case OAUTH2_CLIENT:
 			// use OAuth 2.0 and/or OpenID 1.0
 			// Requires a bean of type ClientRegistrationRepository
 			// In application.yml: spring.security.oauth2.client.registration: (...)
+			LOG.info("Setting up OAUTH2 CLIENT security");
 			http.oauth2Login().defaultSuccessUrl("/main", true);
 			break;
 		default:
@@ -114,6 +133,12 @@ public class SecurityConfig {
 		}
 	}
 
+	private void disableSession(HttpSecurity http) throws Exception {
+
+		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+	}
+
+	// Used by Spring to encode the password provider by the client
 	@Bean
 	PasswordEncoder passwordEncoder() {
 
@@ -122,19 +147,34 @@ public class SecurityConfig {
 
 	// Used by OAuth2ResourceServer
 	@Bean
-	JwtDecoder jwtDecoder() {
+	@Primary
+	JwtDecoder assymetricJwtDecoder() {
 
-		// symetric key: .withSecretKey()
-		// NimbusJwtDecoder.withSecretKey(null);
 		return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
 	}
 
 	// Used by TokenService
 	@Bean
-	JwtEncoder jwtEncoder() {
+	@Primary
+	JwtEncoder assymetricJwtEncoder() {
 
 		JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
-		JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-		return new NimbusJwtEncoder(jwks);
+		JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
+		return new NimbusJwtEncoder(jwkSource);
+	}
+
+	@Bean
+	JwtDecoder symmetricJwtDecoder() {
+
+		byte[] bytes = jwtSymmetricKey.getBytes();
+		SecretKeySpec originalKey = new SecretKeySpec(bytes, 0, bytes.length, "RSA");
+		return NimbusJwtDecoder.withSecretKey(originalKey).macAlgorithm(MacAlgorithm.HS512).build();
+	}
+
+	@Bean
+	JwtEncoder symmetricJwtEncoder() {
+
+		JWKSource<SecurityContext> jwkSource = new ImmutableSecret<>(jwtSymmetricKey.getBytes());
+		return new NimbusJwtEncoder(jwkSource);
 	}
 }
