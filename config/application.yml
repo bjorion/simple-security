@@ -7,5 +7,4 @@ spring:
         registration:
           github:
             client-id: 97c23f4437bdf7d3077c
-            # Normally, this secret should not be committed, but here it does not matter
-            client-secret: afa68c881bf950db8e049dd1297bd9f507b9e82f
+            # client-secret: see secrets.yml

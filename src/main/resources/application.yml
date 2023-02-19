@@ -1,12 +1,14 @@
 spring:
+  config:
+    import: "optional:secrets.yml"
   datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
+    url: "jdbc:h2:mem:testdb"
+    driverClassName: "org.h2.Driver"
+    username: "sa"
     password: ""
     initialize: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: "org.hibernate.dialect.H2Dialect"
     show-sql: true
     hibernate:
       ddl-auto: none
