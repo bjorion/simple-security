@@ -1,6 +1,5 @@
 package org.jorion.simplesecurity.entity;
 
-public interface INoOpEntity
-{
+public interface INoOpEntity {
 
 }

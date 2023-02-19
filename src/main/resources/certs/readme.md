@@ -1,4 +1,3 @@
-
 # Generate public/private keys via OpenSSL
 
 __GENERATE A KEY PAIR__:

@@ -1,9 +1,14 @@
 package org.jorion.simplesecurity.config;
 
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import lombok.extern.slf4j.Slf4j;
 import org.jorion.simplesecurity.service.JpaUserDetailsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,41 +30,35 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
-
 import javax.crypto.spec.SecretKeySpec;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
+    enum LoginType {
 
-	enum LoginType {
+        BASIC,
 
-		BASIC,
+        FORM,
 
-		FORM, 
-		
-		OAUTH2_RS,
-		
-		OAUTH2_CLIENT
-	}
+        /** OAUTH2 Resource Service: for authorization only */
+        OAUTH2_RS,
 
-	@Autowired
-	private RsaKeyProperties rsaKeys;
+        /** OAUTH2 Client: for authentication via OpenID */
+        OAUTH2_CLIENT
+    }
 
-	@Autowired
-	private JpaUserDetailsService jpaUserDetailsService;
+    @Autowired
+    private RsaKeyProperties rsaKeys;
 
-	@Value("jwt.symmetric-key")
-	private String jwtSymmetricKey;
-	
+    @Autowired
+    private JpaUserDetailsService jpaUserDetailsService;
+
+    @Value("jwt.symmetric-key")
+    private String jwtSymmetricKey;
+
 //	@Bean
 //	public AuthenticationManager authManager(UserDetailsService userDetailsService) {
 //		
@@ -68,113 +67,114 @@ public class SecurityConfig {
 //		return new ProviderManager(authProvider);
 //	}
 
-	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		
-		// @formatter:off
-		http
-			// necessary to display the H2 console
-			.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-			.csrf(AbstractHttpConfigurer::disable);
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		setHttpLoginMethod(http, LoginType.BASIC);
-		setHttpLoginMethod(http, LoginType.OAUTH2_RS);
-		disableSession(http);
+        http
+                // necessary to display the H2 console
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .csrf(AbstractHttpConfigurer::disable);
 
-		http.authorizeHttpRequests(request -> request
-			.requestMatchers("/error").permitAll()
-			.requestMatchers("/done").permitAll()
-			.requestMatchers("/access-denied").permitAll()
-			.requestMatchers("/actuator/**").permitAll()
-			.requestMatchers("/h2-console/**").permitAll()
-			.requestMatchers("/favicon.ico").permitAll()	
-			.anyRequest().authenticated()
-		);
-		
-		http.userDetailsService(jpaUserDetailsService);
-		
-		http.logout()
-			.logoutUrl("/logout")
-			.logoutSuccessUrl("/done")
-			.invalidateHttpSession(true)
-			.deleteCookies("JSESSIONID");
-		// @formatter:on
+        // Configure the authentication methods here
+        setHttpLoginMethod(http, LoginType.BASIC);
+        // setHttpLoginMethod(http, LoginType.FORM);
+        // setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);
+        setHttpLoginMethod(http, LoginType.OAUTH2_RS);
+        disableSession(http);
 
-		return http.build();
-	}
+        http.authorizeHttpRequests(request -> request
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/done").permitAll()
+                .requestMatchers("/access-denied").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/favicon.ico").permitAll()
+                .anyRequest().authenticated()
+        );
 
-	private void setHttpLoginMethod(HttpSecurity http, LoginType loginType) throws Exception {
+        http.userDetailsService(jpaUserDetailsService);
 
-		switch(loginType) {
-		case BASIC:
-			// with basic, there is no "successUrl"
-			LOG.info("Setting up BASIC security");
-			http.httpBasic(Customizer.withDefaults());
-			break;
-		case FORM:
-			LOG.info("Setting up FORM security");
-			http.formLogin(form -> form.defaultSuccessUrl("/main", true));
-			// we need a session with the form login
-			break;
-		case OAUTH2_RS:
-			// jwt: requires a JwtDecoder bean
-			LOG.info("Setting up OAUTH2 RESOURCE SERVER security");
-			http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-			break;
-		case OAUTH2_CLIENT:
-			// use OAuth 2.0 and/or OpenID 1.0
-			// Requires a bean of type ClientRegistrationRepository
-			// In application.yml: spring.security.oauth2.client.registration: (...)
-			LOG.info("Setting up OAUTH2 CLIENT security");
-			http.oauth2Login().defaultSuccessUrl("/main", true);
-			break;
-		default:
-			break;
-		}
-	}
+        http.logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/done")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID");
 
-	private void disableSession(HttpSecurity http) throws Exception {
+        return http.build();
+    }
 
-		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-	}
+    private void setHttpLoginMethod(HttpSecurity http, LoginType loginType) throws Exception {
 
-	// Used by Spring to encode the password provider by the client
-	@Bean
-	PasswordEncoder passwordEncoder() {
+        switch (loginType) {
+            case BASIC:
+                // with basic, there is no "successUrl"
+                log.info("Setting up BASIC security");
+                http.httpBasic(Customizer.withDefaults());
+                break;
+            case FORM:
+                log.info("Setting up FORM security");
+                http.formLogin(form -> form.defaultSuccessUrl("/main", true));
+                // we need a session with the form login
+                break;
+            case OAUTH2_RS:
+                // jwt: requires a JwtDecoder bean
+                log.info("Setting up OAUTH2 RESOURCE SERVER security");
+                http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+                break;
+            case OAUTH2_CLIENT:
+                // use OAuth 2.0 and/or OpenID 1.0
+                // Requires a bean of type ClientRegistrationRepository
+                // In application.yml: spring.security.oauth2.client.registration: (...)
+                log.info("Setting up OAUTH2 CLIENT security");
+                http.oauth2Login().defaultSuccessUrl("/main", true);
+                break;
+            default:
+                break;
+        }
+    }
 
-		return new BCryptPasswordEncoder();
-	}
+    private void disableSession(HttpSecurity http) throws Exception {
 
-	// Used by OAuth2ResourceServer
-	@Bean
-	@Primary
-	JwtDecoder assymetricJwtDecoder() {
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    }
 
-		return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
-	}
+    // Used by Spring to encode the password provider by the client
+    @Bean
+    PasswordEncoder passwordEncoder() {
 
-	// Used by TokenService
-	@Bean
-	@Primary
-	JwtEncoder assymetricJwtEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-		JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
-		JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
-		return new NimbusJwtEncoder(jwkSource);
-	}
+    // Used by OAuth2ResourceServer
+    @Bean
+    @Primary
+    JwtDecoder assymetricJwtDecoder() {
 
-	@Bean
-	JwtDecoder symmetricJwtDecoder() {
+        return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
+    }
 
-		byte[] bytes = jwtSymmetricKey.getBytes();
-		SecretKeySpec originalKey = new SecretKeySpec(bytes, 0, bytes.length, "RSA");
-		return NimbusJwtDecoder.withSecretKey(originalKey).macAlgorithm(MacAlgorithm.HS512).build();
-	}
+    // Used by TokenService
+    @Bean
+    @Primary
+    JwtEncoder assymetricJwtEncoder() {
 
-	@Bean
-	JwtEncoder symmetricJwtEncoder() {
+        JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
+        JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwkSource);
+    }
 
-		JWKSource<SecurityContext> jwkSource = new ImmutableSecret<>(jwtSymmetricKey.getBytes());
-		return new NimbusJwtEncoder(jwkSource);
-	}
+    @Bean
+    JwtDecoder symmetricJwtDecoder() {
+
+        byte[] bytes = jwtSymmetricKey.getBytes();
+        SecretKeySpec originalKey = new SecretKeySpec(bytes, 0, bytes.length, "RSA");
+        return NimbusJwtDecoder.withSecretKey(originalKey).macAlgorithm(MacAlgorithm.HS512).build();
+    }
+
+    @Bean
+    JwtEncoder symmetricJwtEncoder() {
+
+        JWKSource<SecurityContext> jwkSource = new ImmutableSecret<>(jwtSymmetricKey.getBytes());
+        return new NimbusJwtEncoder(jwkSource);
+    }
 }

@@ -73,8 +73,8 @@ Filter
 
 User
 
-* __UserDetails__: interface, provides core user information
-* __UserDetailsService__: interface which loads user-specific data. (loadByUsername)
+* __UserDetails__: interface, provides core person information
+* __UserDetailsService__: interface which loads person-specific data. (loadByUsername)
 * __UserDetailsManager__: interface, extends UserDetailsService to create/update users
 * __User__: implementation of __UserDetails__
 
@@ -100,7 +100,7 @@ Authentication
 
 ### 4. AuthenticationProvider (implementations)
 
-* __DaoAuthenticationProvider__ (provider that retrieves user details from a UserDetailsService) ---> AbstractUserDetailsAuthenticationProvider ---> AuthenticationProvider
+* __DaoAuthenticationProvider__ (provider that retrieves person details from a UserDetailsService) ---> AbstractUserDetailsAuthenticationProvider ---> AuthenticationProvider
 * __JwtAuthenticationProvider__ ---> AuthenticationProvider
 
 
@@ -139,6 +139,10 @@ Authentication
 
 ### 3. OAuth2 ResourceServer
 
+- NOTE: to invoke the URL below, you'll first need to be **authenticated**,
+  since OAUTH2 is an **authorization** protocol.
+- You need to enable **OAUTH2 RS** in SecurityConfig.java:
+  `setHttpLoginMethod(http, LoginType.OAUTH2_RS);`
 - POST localhost:8080/token (with basic authentication) => returns JWT
 - JWTDecoder: 
 	- **symmetric** (NimbusJwtDecoder.withSecretKey) or 
@@ -152,7 +156,8 @@ Authentication
 
 ### 4. OAuth2 Client
 
-- You need to enable **OAuth2 Client** authentication in SecurityConfig.java:
+- Here we'll delegate the **authentication** part to GitHub (for instance) using the **OpenID** protocol
+- You need to enable **OAuth2 Client** in SecurityConfig.java:
   `setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);`
 - In the login page, there will be a link to Authenticate via GITHUB if application.yml is correctly configured
 

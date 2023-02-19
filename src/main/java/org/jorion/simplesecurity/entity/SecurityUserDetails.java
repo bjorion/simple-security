@@ -1,76 +1,64 @@
 package org.jorion.simplesecurity.entity;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 /**
- * Implement the class {@link UserDetails} and wraps the {@link User} entity.
+ * Implement the class {@link UserDetails} and wraps the {@link Person} entity.
  */
-public class SecurityUserDetails implements UserDetails
-{
-    private final User user;
+public class SecurityUserDetails implements UserDetails {
 
-    public SecurityUserDetails(User user)
-    {
-        this.user = user;
+    private final Person person;
+
+    public SecurityUserDetails(Person person) {
+        this.person = person;
     }
 
-    public User getUser()
-    {
-        return user;
+    public Person getPerson() {
+        return person;
     }
 
-    // @Override
-    public Collection<? extends GrantedAuthority> getAuthorities()
-    {
-        // @formatter:off
-		Collection<? extends GrantedAuthority> authorities = 
-				user.getAuthorities()
-					.stream()
-					.map(a ->  new SimpleGrantedAuthority(a.getName()))
-		        	.collect(Collectors.toList());
-		// @formatter:on
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        Collection<? extends GrantedAuthority> authorities =
+                person.getAuthorities()
+                        .stream()
+                        .map(a -> new SimpleGrantedAuthority(a.getName()))
+                        .collect(Collectors.toList());
         return authorities;
     }
 
     @Override
-    public String getPassword()
-    {
-        return user.getPassword();
+    public String getPassword() {
+        return person.getPassword();
     }
 
     @Override
-    public String getUsername()
-    {
-        return user.getUsername();
+    public String getUsername() {
+        return person.getUsername();
     }
 
     @Override
-    public boolean isAccountNonExpired()
-    {
+    public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked()
-    {
+    public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired()
-    {
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
-    public boolean isEnabled()
-    {
+    public boolean isEnabled() {
         return true;
     }
-
 }

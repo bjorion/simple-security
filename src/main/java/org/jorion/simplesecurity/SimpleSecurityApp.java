@@ -15,10 +15,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackageClasses = INoOpEntity.class)
 @EnableConfigurationProperties(RsaKeyProperties.class)
 @PropertySource("classpath:META-INF/build-info.properties")
-public class SimpleSecurityApp
-{
-    public static void main(String[] args)
-    {
+public class SimpleSecurityApp {
+
+    public static void main(String[] args) {
+
         SpringApplication.run(SimpleSecurityApp.class, args);
     }
 }

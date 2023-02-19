@@ -10,7 +10,7 @@ CREATE TABLE  person (
 CREATE TABLE  authority (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(45) NULL,
-  user_fk INT NULL,
+  person_fk INT NULL,
   PRIMARY KEY (id)
 );
 

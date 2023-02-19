@@ -20,7 +20,7 @@ POC to test various authentication methods using Spring Security 6
 ### Start
 
 * localhost:8080/
-* user = john; password = 12345
+* person = john; password = 12345
 
 
 ### Accessing the H2 Console
