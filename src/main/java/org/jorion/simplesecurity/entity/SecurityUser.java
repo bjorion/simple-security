@@ -1,5 +1,6 @@
 package org.jorion.simplesecurity.entity;
 
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,11 +11,11 @@ import java.util.stream.Collectors;
 /**
  * Implement the class {@link UserDetails} and wraps the {@link Person} entity.
  */
-public class SecurityUserDetails implements UserDetails {
+public final class SecurityUser implements UserDetails {
 
     private final Person person;
 
-    public SecurityUserDetails(Person person) {
+    public SecurityUser(Person person) {
         this.person = person;
     }
 
@@ -22,6 +23,7 @@ public class SecurityUserDetails implements UserDetails {
         return person;
     }
 
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         Collection<? extends GrantedAuthority> authorities =
@@ -30,6 +32,12 @@ public class SecurityUserDetails implements UserDetails {
                         .map(a -> new SimpleGrantedAuthority(a.getName()))
                         .collect(Collectors.toList());
         return authorities;
+    }
+
+    @Override
+    public String toString() {
+
+        return "SecurityUser [username=" + getUsername() + "]";
     }
 
     @Override

@@ -2,7 +2,10 @@
 
 POC to test various authentication methods using Spring Security 6
 
-[[_TOC_]]
+### Documentation
+
+* [Full Documentation](./doc/documentation.md)
+
 
 ### Authentication Methods
 
@@ -12,15 +15,16 @@ POC to test various authentication methods using Spring Security 6
 * OAuth2 Client Login (http://localhost:8080/) with a GitHub account
 
 
-### Documentation
+### Run the application
 
-* [Full Documentation](./doc/documentation.md)
+1. Select an authentication method in **Security Config**
+2. Run the class **SimpleSecurityApp**
+3. Go to http://localhost:8080/main
+4. Use the credentials: *username = john; password = 12345*
+5. http://localhost:8080/user => user info
+6. http://localhost:8080/token => provide a JWT to be used in other requests
 
-
-### Start
-
-* localhost:8080/
-* person = john; password = 12345
+*See the **Login** section in the documentation for more information on how to log in*
 
 
 ### Accessing the H2 Console

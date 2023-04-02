@@ -1,7 +1,7 @@
 package org.jorion.simplesecurity.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jorion.simplesecurity.entity.SecurityUserDetails;
+import org.jorion.simplesecurity.entity.SecurityUser;
 import org.jorion.simplesecurity.repository.IPersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,19 +25,20 @@ public class JpaUserDetailsService implements UserDetailsService {
     private IPersonRepository personRepository;
 
     /**
-     * Override {@code Object loadUserByUsername(...)}
+     * Override {@code UserDetails loadUserByUsername(...)}
      */
     @Override
-    public SecurityUserDetails loadUserByUsername(String username) {
+    public SecurityUser loadUserByUsername(String username)
+            throws UsernameNotFoundException {
 
         Supplier<UsernameNotFoundException> supplierNotFound =
                 () -> new UsernameNotFoundException("Problem during authentication! (user not found)");
-        SecurityUserDetails securityUserDetails = personRepository
+        SecurityUser securityUser = personRepository
                 .findPersonByUsername(username)
-                .map(SecurityUserDetails::new)
+                .map(SecurityUser::new)
                 .orElseThrow(supplierNotFound);
-        log.debug("Retrieved info about [{}]: [{}]", username, securityUserDetails.toString());
-        return securityUserDetails;
+        log.debug("Retrieved info about [{}]: [{}]", username, securityUser.toString());
+        return securityUser;
     }
 
 }

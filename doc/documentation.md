@@ -5,10 +5,10 @@
 ## Security Filters
 
 1. org.springframework.security.web.session.DisableEncodeUrlFilter
-1. org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
-1. org.springframework.security.web.context.SecurityContextPersistenceFilter
-1. org.springframework.security.web.header.HeaderWriterFilter
-1. org.springframework.security.web.authentication.logout.LogoutFilter
+2. org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
+3. org.springframework.security.web.context.SecurityContextPersistenceFilter
+4. org.springframework.security.web.header.HeaderWriterFilter
+5. org.springframework.security.web.authentication.logout.LogoutFilter
 
 
 **OAuth Client**
@@ -26,11 +26,11 @@
 
 
 1. org.springframework.security.web.savedrequest.RequestCacheAwareFilter
-1. org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
-1. org.springframework.security.web.authentication.AnonymousAuthenticationFilter
-1. org.springframework.security.web.session.SessionManagementFilter
-1. org.springframework.security.web.access.ExceptionTranslationFilter
-1. org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+2. org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
+3. org.springframework.security.web.authentication.AnonymousAuthenticationFilter 
+4. org.springframework.security.web.session.SessionManagementFilter 
+5. org.springframework.security.web.access.ExceptionTranslationFilter 
+6. org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 
 --- 
 
@@ -73,17 +73,51 @@ Filter
 
 User
 
-* __UserDetails__: interface, provides core person information
-* __UserDetailsService__: interface which loads person-specific data. (loadByUsername)
+* __UserDetails__: interface, provides core user information `username / password / authorities)`
+* __UserDetailsService__: interface that loads user-specific data: `UserDetails loadByUsername(username)`
 * __UserDetailsManager__: interface, extends UserDetailsService to create/update users
 * __User__: implementation of __UserDetails__
+
+```plantuml
+@startuml
+
+UserDetailsManager --|> UserDetailsService : .extends
+
+UserDetailsService ..|> UserDetails : .uses
+
+note top of UserDetails
+   The <b>UserDetails</b> represents the user 
+   as understood by <i>Spring Security</i>. 
+   The class of your application that describes 
+   the user has to implement this interface 
+   so that the framework can understand it.
+end note
+
+UserDetails *--{ GrantedAuthority : .has one or more
+
+interface UserDetailsManager
+
+interface UserDetailsService {
+	UserDetails loadUserByUsername()
+}
+
+interface UserDetails {
+	username
+	password
+	authorities
+}
+
+interface GrantedAuthority
+
+@enduml
+```
 
 Authentication
 
 * __AbstractAuthenticationToken__: Base Class for Authentication objects
 * __AbstractAuthenticationProcessingFilter__: filter for HTTP based authentication requests
 * __AbstractUserDetailsAuthenticationProvider__: provider designed for UsernamePasswordAuthenticationToken
-* __AuthenticationManager__: attemps to authenticate the given Authentication object, returning a fully popuated Authentication object (included authorities) if successful
+* __AuthenticationManager__: attempts to authenticate the given Authentication object, returning a fully populated Authentication object (included authorities) if successful
 
 
 ### 2. AbstractAuthenticationProcessingFilter (extensions)

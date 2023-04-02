@@ -80,6 +80,9 @@ public class SecurityConfig {
         // setHttpLoginMethod(http, LoginType.FORM);
         // setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);
         setHttpLoginMethod(http, LoginType.OAUTH2_RS);
+
+        // the session must be enabled when using the FORM authentication method
+        // it's typically disabled when using OAUTH2
         disableSession(http);
 
         http.authorizeHttpRequests(request -> request

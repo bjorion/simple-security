@@ -1,7 +1,7 @@
 package org.jorion.simplesecurity.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jorion.simplesecurity.entity.SecurityUserDetails;
+import org.jorion.simplesecurity.entity.SecurityUser;
 import org.jorion.simplesecurity.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -42,14 +42,19 @@ public class MainPageController {
         log.info("UserName [{}], Authentication [{}], Principal [{}]", auth.getName(), auth.getClass().getSimpleName(),
                 principal.getClass().getSimpleName());
 
+        // OAuth2 User
         if (principal instanceof DefaultOAuth2User user) {
             user.getAuthorities().forEach(e -> log.debug("Authority [{}]", e.getAuthority()));
             user.getAttributes().forEach((key, value) -> log.trace(key + ": " + value));
             name = user.getAttribute("name");
-        } else if (principal instanceof SecurityUserDetails user) {
+        }
+        // Security User
+        else if (principal instanceof SecurityUser user) {
             user.getAuthorities().forEach(e -> log.debug("Authority [{}]", e.getAuthority()));
             name = user.getUsername();
-        } else {
+        }
+        // Else
+        else {
             name = auth.getName();
         }
 
