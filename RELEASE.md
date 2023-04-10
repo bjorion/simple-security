@@ -6,7 +6,5 @@
 * 2023-02-19: (v1.1.1): add lombok annotations
 * 2023-04-02: (v1.1.2): update to Spring Boot 3.0.5 and update documentation
 
-## TODO
 
-* Integration Test on OAuth controller
 
