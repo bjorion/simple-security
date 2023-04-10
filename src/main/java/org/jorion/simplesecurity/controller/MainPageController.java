@@ -5,6 +5,7 @@ import org.jorion.simplesecurity.entity.SecurityUser;
 import org.jorion.simplesecurity.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,17 +41,22 @@ public class MainPageController {
         String name;
         Object principal = auth.getPrincipal();
         log.info("UserName [{}], Authentication [{}], Principal [{}]", auth.getName(), auth.getClass().getSimpleName(),
-                principal.getClass().getSimpleName());
+                principal.getClass().getName());
 
         // OAuth2 User
         if (principal instanceof DefaultOAuth2User user) {
-            user.getAuthorities().forEach(e -> log.debug("Authority [{}]", e.getAuthority()));
+            user.getAuthorities().forEach(e -> log.debug("OAuth2User: Authority [{}]", e.getAuthority()));
             user.getAttributes().forEach((key, value) -> log.trace(key + ": " + value));
             name = user.getAttribute("name");
         }
         // Security User
         else if (principal instanceof SecurityUser user) {
-            user.getAuthorities().forEach(e -> log.debug("Authority [{}]", e.getAuthority()));
+            user.getAuthorities().forEach(e -> log.debug("SecurityUser: Authority [{}]", e.getAuthority()));
+            name = user.getUsername();
+        }
+        // Spring User
+        else if (principal instanceof User user) {
+            user.getAuthorities().forEach(e -> log.debug("SpringUser: Authority [{}]", e.getAuthority()));
             name = user.getUsername();
         }
         // Else

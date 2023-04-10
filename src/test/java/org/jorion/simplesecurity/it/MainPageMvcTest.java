@@ -1,7 +1,14 @@
 package org.jorion.simplesecurity.it;
 
+import org.jorion.simplesecurity.controller.MainPageController;
 import org.jorion.simplesecurity.service.ProductService;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -10,7 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.OK;
 
 /**
  * With {@code @WebMvcTest}, we create the {@code @ApplicationContext} with a limited number of beans
@@ -20,23 +27,25 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
  * If the controller has a dependency on a {@code @Service} object, you'll need to mock this
  * dependency using a {@code @MockBean} annotation.
  */
-// @WebMvcTest(controllers = MainPageController.class)
+@WebMvcTest
+@ContextConfiguration(classes = MainPageController.class)
 public class MainPageMvcTest {
 
-    // @Autowired
+    @Autowired
     private MockMvc mvc;
 
-    // @MockBean
+    @MockBean
     private ProductService productService;
 
-    // @Test
-    void main_unauthenticated_returns401()
+    @Test
+    @WithMockUser(username = "john", roles = "MEMBER")
+    void main_withMockUser_returns200()
             throws Exception {
 
         Mockito.when(productService.findAll()).thenReturn(List.of());
 
         RequestBuilder request = MockMvcRequestBuilders.get("/main");
         MvcResult result = mvc.perform(request).andReturn();
-        assertEquals(UNAUTHORIZED.value(), result.getResponse().getStatus());
+        assertEquals(OK.value(), result.getResponse().getStatus());
     }
 }
