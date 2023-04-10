@@ -22,7 +22,7 @@ public class MainPageController {
     private ProductService productService;
 
     @GetMapping("/main")
-    public String main(Authentication auth, Model model) {
+    public String mainPage(Authentication auth, Model model) {
 
         String name = logInfo(auth);
         log.info("/main, name [{}]", name);

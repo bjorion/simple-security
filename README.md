@@ -4,7 +4,7 @@ POC to test various authentication methods using Spring Security 6
 
 ### Documentation
 
-* [Full Documentation](./doc/documentation.md)
+* [Security](./doc/security.md)
 
 
 ### Authentication Methods
@@ -24,7 +24,7 @@ POC to test various authentication methods using Spring Security 6
 5. http://localhost:8080/user => user info
 6. http://localhost:8080/token => provide a JWT to be used in other requests
 
-*See the **Login** section in the documentation for more information on how to log in*
+*See the **Login** section in the [documentation](./doc/security.md#login) for more information on how to log in*
 
 
 ### Accessing the H2 Console

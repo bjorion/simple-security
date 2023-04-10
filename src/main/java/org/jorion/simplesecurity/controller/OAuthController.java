@@ -24,8 +24,7 @@ public class OAuthController {
     public String createAccessToken(Authentication auth) {
 
         log.info("Token requested for user [{}]", auth.getName());
-        String token = tokenService.generateToken(auth);
-        return token;
+        return tokenService.generateToken(auth);
     }
 
     @GetMapping(value = "/user", produces = MediaType.TEXT_PLAIN_VALUE)

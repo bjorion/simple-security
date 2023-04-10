@@ -23,13 +23,12 @@ class MainPageControllerTest {
     private MainPageController controller;
 
     @Test
-    void main_ok()
-            throws Exception {
+    void mainPage_ok() {
 
         when(service.findAll()).thenReturn(List.of());
 
         ExtendedModelMap model = new ExtendedModelMap();
-        String response = controller.main(null, model);
+        String response = controller.mainPage(null, model);
         Assertions.assertEquals("main.html", response);
     }
 }

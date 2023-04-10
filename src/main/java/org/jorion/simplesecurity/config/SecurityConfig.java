@@ -109,30 +109,31 @@ public class SecurityConfig {
     private void setHttpLoginMethod(HttpSecurity http, LoginType loginType) throws Exception {
 
         switch (loginType) {
-            case BASIC:
+            case BASIC -> {
                 // with basic, there is no "successUrl"
                 log.info("Setting up BASIC security");
                 http.httpBasic(Customizer.withDefaults());
-                break;
-            case FORM:
+            }
+            case FORM -> {
                 log.info("Setting up FORM security");
                 http.formLogin(form -> form.defaultSuccessUrl("/main", true));
-                // we need a session with the form login
-                break;
-            case OAUTH2_RS:
+            }
+            // we need a session with the form login
+            case OAUTH2_RS -> {
                 // jwt: requires a JwtDecoder bean
                 log.info("Setting up OAUTH2 RESOURCE SERVER security");
                 http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-                break;
-            case OAUTH2_CLIENT:
+            }
+            case OAUTH2_CLIENT -> {
                 // use OAuth 2.0 and/or OpenID 1.0
                 // Requires a bean of type ClientRegistrationRepository
                 // In application.yml: spring.security.oauth2.client.registration: (...)
                 log.info("Setting up OAUTH2 CLIENT security");
                 http.oauth2Login().defaultSuccessUrl("/main", true);
-                break;
-            default:
-                break;
+            }
+            default -> {
+                log.error("Undefined login type");
+            }
         }
     }
 
