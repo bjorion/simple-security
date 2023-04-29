@@ -6,5 +6,8 @@ spring:
         # class ClientRegistration in oauth2-client
         registration:
           github:
+            # Homepage URL: http://localhost:8080/main
+            # Authorization callback URL: http://localhost:8080/
             client-id: 97c23f4437bdf7d3077c
             # client-secret: see secrets.yml
+
