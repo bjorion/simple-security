@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jorion.simplesecurity.service.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,9 +29,10 @@ public class OAuthController {
     }
 
     @GetMapping(value = "/user", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String user(Authentication authentication) {
+    public ResponseEntity<String> user(Authentication authentication) {
 
-        return authentication.toString();
+        String body = authentication.toString();
+        return ResponseEntity.ok(body);
     }
 
 }

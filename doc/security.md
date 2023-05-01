@@ -17,7 +17,7 @@ You have the choice between 4 types of authentication
 
 - You need to enable **Basic** authentication in SecurityConfig.java:
   `setHttpLoginMethod(http, LoginType.BASIC);`
-- GET localhost:8080/main
+- GET <u>localhost:8080/main</u>
 	- Authorization: Basic am9objoxMjM0NQ==
 	- Token class: UsernamePasswordAuthenticationToken
 
@@ -27,7 +27,7 @@ You have the choice between 4 types of authentication
 
 - You need to enable **Form** authentication in SecurityConfig.java:
   `setHttpLoginMethod(http, LoginType.FORM);`
-- POST localhost:8080/login
+- POST <u>localhost:8080/login</u>
 	- Body = form-data
 	- username = ...
 	- password = ...
@@ -57,6 +57,7 @@ You have the choice between 4 types of authentication
 - Here we'll delegate the **authentication** part to GitHub (for instance) using the **OpenID** protocol
 - You need to enable **OAuth2 Client** in SecurityConfig.java:
   `setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);`
+- GET <u>localhost:8080/login</u>
 - In the login page, there will be a link to Authenticate via GITHUB if application.yml is correctly configured
 
 ---

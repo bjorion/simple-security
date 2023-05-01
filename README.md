@@ -10,9 +10,9 @@ POC to test various authentication methods using Spring Security 6
 ### Authentication Methods
 
 * Basic (http://localhost:8080/main)
-* LoginForm (http://localhost:8080/)
+* LoginForm (http://localhost:8080/login)
 * OAuth2 Resource Server (GET /main with Bearer Token = ...)
-* OAuth2 Client Login (http://localhost:8080/) with a GitHub account
+* OAuth2 Client Login (http://localhost:8080/login) with a GitHub account
 
 
 ### Run the application

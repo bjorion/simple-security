@@ -84,9 +84,10 @@ public class SecurityConfig {
 
         // the session must be enabled when using the FORM authentication method
         // it's typically disabled when using OAUTH2
-        disableSession(http);
+        // disableSession(http);
 
         http.authorizeHttpRequests(request -> request
+                .requestMatchers("/public").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/done").permitAll()
                 .requestMatchers("/access-denied").permitAll()
@@ -130,7 +131,8 @@ public class SecurityConfig {
                 // Requires a bean of type ClientRegistrationRepository
                 // In application.yml: spring.security.oauth2.client.registration: (...)
                 log.info("Setting up OAUTH2 CLIENT security");
-                http.oauth2Login().defaultSuccessUrl("/main", true);
+                http.oauth2Login(Customizer.withDefaults());
+                // http.oauth2Login().defaultSuccessUrl("/main", true);
             }
             default -> {
                 log.error("Undefined login type");
