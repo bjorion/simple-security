@@ -11,9 +11,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackageClasses = INoOpRepository.class)
-@EntityScan(basePackageClasses = INoOpEntity.class)
-@EnableConfigurationProperties(RsaKeyProperties.class)
 @PropertySource(value = "classpath:META-INF/build-info.properties", ignoreResourceNotFound = true)
 public class SimpleSecurityApp {
 

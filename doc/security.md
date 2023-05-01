@@ -174,17 +174,21 @@ Authentication
 5. org.springframework.security.web.authentication.logout.LogoutFilter
 
 **OAuth Client**
-* org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter
-* org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter
+
+	* org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter
+	* org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter
 
 **OAuth RS**
-* org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
+
+	* org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
 
 **BASIC**
-* org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+
+	* org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 **FORM**
-* org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+
+	* org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 1. org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 2. org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter

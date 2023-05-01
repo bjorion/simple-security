@@ -8,9 +8,11 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.extern.slf4j.Slf4j;
+import org.jorion.simplesecurity.config.filter.AuthenticationLoggingFilter;
 import org.jorion.simplesecurity.service.JpaUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -29,12 +31,14 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 import javax.crypto.spec.SecretKeySpec;
 
 @Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties(RsaKeyProperties.class)
 public class SecurityConfig {
 
     enum LoginType {
@@ -43,10 +47,14 @@ public class SecurityConfig {
 
         FORM,
 
-        /** OAUTH2 Resource Service: for authorization only */
+        /**
+         * OAUTH2 Resource Service: for authorization only (not authentication)
+         */
         OAUTH2_RS,
 
-        /** OAUTH2 Client: for authentication via OpenID */
+        /**
+         * OAUTH2 Client: for authentication via OpenID
+         */
         OAUTH2_CLIENT
     }
 
@@ -77,8 +85,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable);
 
         // Configure the authentication methods here
-        setHttpLoginMethod(http, LoginType.BASIC);
-        // setHttpLoginMethod(http, LoginType.FORM);
+        // setHttpLoginMethod(http, LoginType.BASIC);
+        setHttpLoginMethod(http, LoginType.FORM);
         // setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);
         setHttpLoginMethod(http, LoginType.OAUTH2_RS);
 
@@ -99,6 +107,9 @@ public class SecurityConfig {
 
         http.userDetailsService(jpaUserDetailsService);
 
+        // filters
+        http.addFilterAfter(new AuthenticationLoggingFilter(), AnonymousAuthenticationFilter.class);
+
         http.logout()
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/done")
@@ -112,8 +123,8 @@ public class SecurityConfig {
 
         switch (loginType) {
             case BASIC -> {
-                // with basic, there is no "successUrl"
                 log.info("Setting up BASIC security");
+                // adds the BasicAuthenticationFilter to the filter chain
                 http.httpBasic(Customizer.withDefaults());
             }
             case FORM -> {
