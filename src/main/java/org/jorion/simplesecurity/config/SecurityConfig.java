@@ -124,17 +124,19 @@ public class SecurityConfig {
         switch (loginType) {
             case BASIC -> {
                 log.info("Setting up BASIC security");
-                // adds the BasicAuthenticationFilter to the filter chain
+                // this method adds "BasicAuthenticationFilter" to the filter chain
                 http.httpBasic(Customizer.withDefaults());
             }
             case FORM -> {
                 log.info("Setting up FORM security");
+                // this methods add "UsernamePasswordAuthenticationFilter" to the filter chain
                 http.formLogin(form -> form.defaultSuccessUrl("/main", true));
             }
             // we need a session with the form login
             case OAUTH2_RS -> {
                 // jwt: requires a JwtDecoder bean
                 log.info("Setting up OAUTH2 RESOURCE SERVER security");
+                // this method will validate the bound JWT token against the IDP server
                 http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
             }
             case OAUTH2_CLIENT -> {
@@ -142,6 +144,8 @@ public class SecurityConfig {
                 // Requires a bean of type ClientRegistrationRepository
                 // In application.yml: spring.security.oauth2.client.registration: (...)
                 log.info("Setting up OAUTH2 CLIENT security");
+                // this method adds "OAuth2LoginAuthenticationFilter" to the filter chain
+                // this filter intercepts requests and applies the needed logic for OAuth2 authentication
                 http.oauth2Login(Customizer.withDefaults());
                 // http.oauth2Login().defaultSuccessUrl("/main", true);
             }
