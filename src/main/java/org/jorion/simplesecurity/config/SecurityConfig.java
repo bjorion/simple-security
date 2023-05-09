@@ -129,13 +129,14 @@ public class SecurityConfig {
             }
             case FORM -> {
                 log.info("Setting up FORM security");
-                // this methods add "UsernamePasswordAuthenticationFilter" to the filter chain
+                // this methods adds "UsernamePasswordAuthenticationFilter" to the filter chain
                 http.formLogin(form -> form.defaultSuccessUrl("/main", true));
             }
             // we need a session with the form login
             case OAUTH2_RS -> {
                 // jwt: requires a JwtDecoder bean
                 log.info("Setting up OAUTH2 RESOURCE SERVER security");
+                // this method adds "BearerTokenAuthenticationFilter" to the filter chain
                 // this method will validate the bound JWT token against the IDP server
                 http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
             }
