@@ -77,6 +77,15 @@ User
 * __UserDetailsManager__: interface, extends UserDetailsService to create/update users
 * __User__: implementation of __UserDetails__
 
+
+Authentication
+
+* __AbstractAuthenticationToken__: Base Class for Authentication objects ---> Authentication
+* __AbstractAuthenticationProcessingFilter__: filter for HTTP based authentication requests
+* __AbstractUserDetailsAuthenticationProvider__: provider designed for UsernamePasswordAuthenticationToken
+* __AuthenticationManager__: attempts to authenticate the given Authentication object, returning a fully populated Authentication object (included authorities) if successful
+
+
 ```plantuml
 @startuml
 
@@ -111,14 +120,6 @@ interface GrantedAuthority
 @enduml
 ```
 
-Authentication
-
-* __AbstractAuthenticationToken__: Base Class for Authentication objects
-* __AbstractAuthenticationProcessingFilter__: filter for HTTP based authentication requests
-* __AbstractUserDetailsAuthenticationProvider__: provider designed for UsernamePasswordAuthenticationToken
-* __AuthenticationManager__: attempts to authenticate the given Authentication object, returning a fully populated Authentication object (included authorities) if successful
-
-
 ### 2.2. AbstractAuthenticationProcessingFilter (extensions)
 
 * __UsernamePasswordAuthenticationFilter__ (token = UsernamePasswordAuthenticationToken) ---> AbstractAuthenticationProcessingFilter
@@ -135,6 +136,8 @@ Authentication
 
 * __DaoAuthenticationProvider__ (provider that retrieves person details from a UserDetailsService) ---> AbstractUserDetailsAuthenticationProvider ---> AuthenticationProvider
 * __JwtAuthenticationProvider__ ---> AuthenticationProvider
+* __OAuth2LoginAuthenticationProvider__ ---> AuthenticationProvider
+* __OidcAuthorizationCodeAuthenticationProvider__ ---> AuthenticationProvider
 
 
 ### 2.5. UserDetailsService (implementations)
@@ -143,6 +146,7 @@ Authentication
 * __JdbcUserDetailsManager__ ---> UserDetailsManager ---> UserDetailsService
 * __JpaUserDetailsService__ ---> UserDetailsService
 * __(custom).UserDetailsServiceImpl__ ---> UserDetailsService
+
 
 ### 2.6. Spring OAuth2
 
@@ -157,7 +161,10 @@ Authentication
 	- BearerTokenAuthenticationFilter ---> OncePerRequestFilter
 
 * spring-security-oauth2-client
-	- OAuth2LoginAuthenticationFilter
+	- OAuth2LoginAuthenticationFilter ---> AbstractAuthenticationProcessingFilter ---> GenericFilterBean
+	- OAuth2LoginAuthenticationToken ---> AbstractAuthenticationToken
+	- OAuth2LoginAuthenticationProvider ---> AuthenticationProvider
+	- OidcAuthorizationCodeAuthenticationProvider ---> AuthenticationProvider
 
 ### 2.7. OAuth2 Providers
 
