@@ -50,7 +50,7 @@ public class SecurityConfig {
         FORM,
 
         /**
-         * OAUTH2 Resource Service: for authorization only (not authentication)
+         * OAUTH2 Resource Server: for authorization only (not authentication)
          */
         OAUTH2_RS,
 
