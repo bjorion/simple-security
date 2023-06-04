@@ -72,19 +72,32 @@ Filter
 
 User
 
-* __UserDetails__: interface, provides core user information `username / password / authorities)`
+* __UserDetails__: interface, provides core user information `(username / password / authorities)`
 * __UserDetailsService__: interface that loads user-specific data: `UserDetails loadByUsername(username)`
 * __UserDetailsManager__: interface, extends UserDetailsService to create/update users
 * __User__: implementation of __UserDetails__
-
 
 Authentication
 
 * __AbstractAuthenticationToken__: Base Class for Authentication objects ---> Authentication
 * __AbstractAuthenticationProcessingFilter__: filter for HTTP based authentication requests
-* __AbstractUserDetailsAuthenticationProvider__: provider designed for UsernamePasswordAuthenticationToken
-* __AuthenticationManager__: attempts to authenticate the given Authentication object, returning a fully populated Authentication object (included authorities) if successful
+* __AuthenticationManager__: attempts to authenticate the given Authentication object, 
+        returning a fully populated Authentication object (included authorities) if successful
+* __AuthenticationProvider__: takes care of the authentication logic; default implementation delegates the
+		responsibility to a `UserDetailsService`
+* __AbstractUserDetailsAuthenticationProvider__: provider designed for `UsernamePasswordAuthenticationToken`
+* __AuthenticationEntryPoint__: customizes the response for a failed authentication
 
+```plantuml
+@startuml
+
+interface AuthenticationProvider {
+	boolean supports(Class<?> authentication);
+	Authentication authenticated(Authentication authentication) throws AuthenticationException
+}
+
+@enduml
+```
 
 ```plantuml
 @startuml
@@ -122,19 +135,24 @@ interface GrantedAuthority
 
 ### 2.2. AbstractAuthenticationProcessingFilter (extensions)
 
-* __UsernamePasswordAuthenticationFilter__ (token = UsernamePasswordAuthenticationToken) ---> AbstractAuthenticationProcessingFilter
-* __(custom).JwtClientCredentialFilter__ (token = JwtClientCredentialToken) ---> AbstractAuthenticationProcessingFilter
-* __OAuth2LoginAuthenticationFilter__ (token = OAuth2LoginAuthenticationToken) ---> AbstractAuthenticationProcessingFilter
+* __UsernamePasswordAuthenticationFilter__ (token = UsernamePasswordAuthenticationToken) 
+		---> AbstractAuthenticationProcessingFilter
+* __(custom).JwtClientCredentialFilter__ (token = JwtClientCredentialToken) 
+        ---> AbstractAuthenticationProcessingFilter
+* __OAuth2LoginAuthenticationFilter__ (token = OAuth2LoginAuthenticationToken)
+        ---> AbstractAuthenticationProcessingFilter
 
 
 ### 2.3. AuthenticationManager (implementations)
 
-* __ProviderManager__ (iterates an Authentication request through a list of AuthenticationProvider) ---> AuthenticationManager
+* __ProviderManager__ (iterates an Authentication request through a list of AuthenticationProvider) 
+		---> AuthenticationManager
 
 
 ### 2.4. AuthenticationProvider (implementations)
 
-* __DaoAuthenticationProvider__ (provider that retrieves person details from a UserDetailsService) ---> AbstractUserDetailsAuthenticationProvider ---> AuthenticationProvider
+* __DaoAuthenticationProvider__ (provider that retrieves person details from a UserDetailsService) 
+		---> AbstractUserDetailsAuthenticationProvider ---> AuthenticationProvider
 * __JwtAuthenticationProvider__ ---> AuthenticationProvider
 * __OAuth2LoginAuthenticationProvider__ ---> AuthenticationProvider
 * __OidcAuthorizationCodeAuthenticationProvider__ ---> AuthenticationProvider

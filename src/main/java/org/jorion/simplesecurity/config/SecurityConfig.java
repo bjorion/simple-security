@@ -9,6 +9,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.extern.slf4j.Slf4j;
 import org.jorion.simplesecurity.config.filter.AuthenticationLoggingFilter;
+import org.jorion.simplesecurity.security.CustomAuthenticationSuccessHandler;
 import org.jorion.simplesecurity.service.JpaUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -64,6 +66,9 @@ public class SecurityConfig {
     @Autowired
     private JpaUserDetailsService jpaUserDetailsService;
 
+    @Autowired
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
     @Value("jwt.symmetric-key")
     private String jwtSymmetricKey;
 
@@ -84,11 +89,11 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .csrf(AbstractHttpConfigurer::disable);
 
-        // Configure the authentication methods here
-        // setHttpLoginMethod(http, LoginType.BASIC);
+        // --- Configure the authentication methods here
+        setHttpLoginMethod(http, LoginType.BASIC);
         setHttpLoginMethod(http, LoginType.FORM);
         // setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);
-        setHttpLoginMethod(http, LoginType.OAUTH2_RS);
+        // setHttpLoginMethod(http, LoginType.OAUTH2_RS);
 
         // the session must be enabled when using the FORM authentication method
         // it's typically disabled when using OAUTH2
@@ -105,6 +110,11 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
         );
 
+        // --- Set a custom Authentication Provider
+        // default implementation calls the User Details Service
+        // http.authenticationProvider(authenticationProvider);
+
+        // --- Set a custom User Details Service
         http.userDetailsService(jpaUserDetailsService);
 
         // filters
@@ -125,14 +135,20 @@ public class SecurityConfig {
             case BASIC -> {
                 log.info("Setting up BASIC security");
                 // this method adds "BasicAuthenticationFilter" to the filter chain
-                http.httpBasic(Customizer.withDefaults());
+                http.httpBasic(basicConfig -> {
+                    basicConfig.realmName("BASIC-REALM");
+                    // basicConfig.authenticationEntryPoint(new CustomEntryPoint());
+                });
             }
             case FORM -> {
+                // we need a session with the form login
                 log.info("Setting up FORM security");
-                // this methods adds "UsernamePasswordAuthenticationFilter" to the filter chain
-                http.formLogin(form -> form.defaultSuccessUrl("/main", true));
+                // this method adds "UsernamePasswordAuthenticationFilter" to the filter chain
+                http.formLogin(formConfig -> {
+                    formConfig.defaultSuccessUrl("/main", true);
+                    // formConfig.successHandler(customAuthenticationSuccessHandler);
+                });
             }
-            // we need a session with the form login
             case OAUTH2_RS -> {
                 // jwt: requires a JwtDecoder bean
                 log.info("Setting up OAUTH2 RESOURCE SERVER security");
@@ -147,8 +163,9 @@ public class SecurityConfig {
                 log.info("Setting up OAUTH2 CLIENT security");
                 // this method adds "OAuth2LoginAuthenticationFilter" to the filter chain
                 // this filter intercepts requests and applies the needed logic for OAuth2 authentication
-                http.oauth2Login(Customizer.withDefaults());
-                // http.oauth2Login().defaultSuccessUrl("/main", true);
+                http.oauth2Login(oauth2Config -> {
+                    // oauth2Config.defaultSuccessUrl("/main", true);
+                });
             }
             default -> {
                 log.error("Undefined login type");
