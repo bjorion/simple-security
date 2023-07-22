@@ -13,6 +13,12 @@ public class HomeController {
         return "Hello, home";
     }
 
+    @GetMapping("/write")
+    public String write() {
+
+        return "You need write access to reach that point";
+    }
+
     @GetMapping("/public")
     public ResponseEntity<String> publicHome() {
 

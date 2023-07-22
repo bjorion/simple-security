@@ -22,8 +22,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,12 +32,14 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import javax.crypto.spec.SecretKeySpec;
 
 @Slf4j
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @EnableConfigurationProperties(RsaKeyProperties.class)
 public class SecurityConfig {
 
@@ -50,14 +50,14 @@ public class SecurityConfig {
         FORM,
 
         /**
-         * OAUTH2 Resource Server: for authorization only (not authentication)
+         * OAUTH2 Client: for authentication via OpenID.
          */
-        OAUTH2_RS,
+        OAUTH2_CLIENT,
 
         /**
-         * OAUTH2 Client: for authentication via OpenID
+         * OAUTH2 Resource Server: for authorization only (not authentication)
          */
-        OAUTH2_CLIENT
+        OAUTH2_RS
     }
 
     @Autowired
@@ -68,6 +68,9 @@ public class SecurityConfig {
 
     @Autowired
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
+    @Autowired
+    private HandlerMappingIntrospector introspector;
 
     @Value("jwt.symmetric-key")
     private String jwtSymmetricKey;
@@ -83,10 +86,11 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        log.debug("SecurityFilterChain");
+        log.debug("SecurityFilterChain configuration");
         http
                 // necessary to display the H2 console
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                // disable CSRF filter
                 .csrf(AbstractHttpConfigurer::disable);
 
         // --- Configure the authentication methods here
@@ -100,13 +104,16 @@ public class SecurityConfig {
         // disableSession(http);
 
         http.authorizeHttpRequests(request -> request
-                .requestMatchers("/public").permitAll()
-                .requestMatchers("/error").permitAll()
-                .requestMatchers("/done").permitAll()
-                .requestMatchers("/access-denied").permitAll()
-                .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/favicon.ico").permitAll()
+                // open
+                .requestMatchers(new MvcRequestMatcher(introspector, "/public")).permitAll()
+                .requestMatchers(new MvcRequestMatcher(introspector, "/error")).permitAll()
+                .requestMatchers(new MvcRequestMatcher(introspector, "/done")).permitAll()
+                .requestMatchers(new MvcRequestMatcher(introspector, "/access-denied")).permitAll()
+                .requestMatchers(new MvcRequestMatcher(introspector, "/actuator/**")).permitAll()
+                .requestMatchers(new MvcRequestMatcher(introspector, "/h2-console/**")).permitAll()
+                .requestMatchers(new MvcRequestMatcher(introspector, "/favicon.ico")).permitAll()
+                // restricted
+                .requestMatchers(new MvcRequestMatcher(introspector, "/write")).hasAuthority("WRITE")
                 .anyRequest().authenticated()
         );
 
@@ -120,11 +127,12 @@ public class SecurityConfig {
         // filters
         http.addFilterAfter(new AuthenticationLoggingFilter(), AnonymousAuthenticationFilter.class);
 
-        http.logout()
+        http.logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/done")
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID");
+                .deleteCookies("JSESSIONID")
+        );
 
         return http.build();
     }
@@ -149,13 +157,6 @@ public class SecurityConfig {
                     // formConfig.successHandler(customAuthenticationSuccessHandler);
                 });
             }
-            case OAUTH2_RS -> {
-                // jwt: requires a JwtDecoder bean
-                log.info("Setting up OAUTH2 RESOURCE SERVER security");
-                // this method adds "BearerTokenAuthenticationFilter" to the filter chain
-                // this method will validate the bound JWT token against the IDP server
-                http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-            }
             case OAUTH2_CLIENT -> {
                 // use OAuth 2.0 and/or OpenID 1.0
                 // Requires a bean of type ClientRegistrationRepository
@@ -166,6 +167,15 @@ public class SecurityConfig {
                 http.oauth2Login(oauth2Config -> {
                     // oauth2Config.defaultSuccessUrl("/main", true);
                 });
+            }
+            case OAUTH2_RS -> {
+                // jwt: requires a JwtDecoder bean
+                log.info("Setting up OAUTH2 RESOURCE SERVER security");
+                // this method adds "BearerTokenAuthenticationFilter" to the filter chain
+                // this method will validate the bound JWT token against the IDP server
+                http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+                        .jwt(Customizer.withDefaults())
+                );
             }
             default -> {
                 log.error("Undefined login type");

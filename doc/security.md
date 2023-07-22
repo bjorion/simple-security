@@ -192,35 +192,45 @@ interface GrantedAuthority
 ---
 ## 3. Security Filters
 
-1. org.springframework.security.web.session.DisableEncodeUrlFilter
-2. org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
-3. org.springframework.security.web.context.SecurityContextPersistenceFilter
-4. org.springframework.security.web.header.HeaderWriterFilter
-5. org.springframework.security.web.authentication.logout.LogoutFilter
+To display the list of security filters, set the flag debug to true in the annotation @EnableWebSecurity
 
-**OAuth Client**
+```java
+@EnableWebSecurity(debug = true)
+```
 
-	* org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter
-	* org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter
+**Before**
 
-**OAuth RS**
-
-	* org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
+- org.springframework.security.web.session.DisableEncodeUrlFilter 
+- org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
+- org.springframework.security.web.context.SecurityContextPersistenceFilter
+- org.springframework.security.web.header.HeaderWriterFilter
+- org.springframework.security.web.csrf.CsrfFilter (if CSRF is not disabled)
+- org.springframework.security.web.authentication.logout.LogoutFilter
 
 **BASIC**
 
-	* org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+- org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 **FORM**
 
-	* org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+- org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
-1. org.springframework.security.web.savedrequest.RequestCacheAwareFilter
-2. org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
-3. org.springframework.security.web.authentication.AnonymousAuthenticationFilter 
-4. org.springframework.security.web.session.SessionManagementFilter 
-5. org.springframework.security.web.access.ExceptionTranslationFilter 
-6. org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+**OAUTH CLIENT**
+
+- org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter
+- org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter
+
+**OAUTH RS**
+
+- org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
+
+**After**
+
+- org.springframework.security.web.savedrequest.RequestCacheAwareFilter
+- org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
+- org.springframework.security.web.authentication.AnonymousAuthenticationFilter 
+- org.springframework.security.web.access.ExceptionTranslationFilter 
+- org.springframework.security.web.access.intercept.AuthorizationFilter
 
 --- 
 ## 4. Generate a key with OpenSSL
