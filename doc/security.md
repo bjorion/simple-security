@@ -41,6 +41,14 @@ You have the choice between 4 types of authentication
   since OAUTH2 is an **authorization** protocol.
 - You need to enable **OAUTH2 RS** in SecurityConfig.java:
   `setHttpLoginMethod(http, LoginType.OAUTH2_RS);`
+- application.yml:
+  ```yml
+  spring.security.oauth2.resourceserver.jwt:
+    issuer-uri: http://<keycloak server>/realms/<realm>
+    jwk-set-uri: http://<keycloak server>/realms/<realm>/protocol/openid-connect/certs
+  ```
+  The **jwk-set-uri** contains the public key the server can use to verify the token's signature.
+  The **issuer-uri** points to the base Authorization Server URI that can be used to verify the _iss_ claim as an added security measure
 - POST localhost:8080/token (with basic authentication) => returns JWT
 - JWTDecoder:
 	- **symmetric** (NimbusJwtDecoder.withSecretKey) or
@@ -57,6 +65,18 @@ You have the choice between 4 types of authentication
 - Here we'll delegate the **authentication** part to GitHub (for instance) using the **OpenID** protocol
 - You need to enable **OAuth2 Client** in SecurityConfig.java:
   `setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);`
+- application.yml:
+  ```yml
+  spring.security.oauth2.client.registration.<name>:
+    client-id: ..
+    client-secret: ...
+    redirect-uri: http://localhost:8080/login/oauth2/code/oauth2-client-credentials
+    scope: openid, profile, roles...
+    authorization-grant-type:
+    provider: <provider>
+  spring.security.oauth2.client.registration.provider.<provider>:
+    issuer-uri: http://<keycloak server>/realms/<realm>
+  ```
 - GET <u>localhost:8080/login</u>
 - In the login page, there will be a link to Authenticate via GITHUB if application.yml is correctly configured
 
