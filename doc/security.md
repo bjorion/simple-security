@@ -47,8 +47,9 @@ You have the choice between 4 types of authentication
     issuer-uri: http://<keycloak server>/realms/<realm>
     jwk-set-uri: http://<keycloak server>/realms/<realm>/protocol/openid-connect/certs
   ```
-  The **jwk-set-uri** contains the public key the server can use to verify the token's signature.
-  The **issuer-uri** points to the base Authorization Server URI that can be used to verify the _iss_ claim as an added security measure
+  - The **jwk-set-uri** contains the public key the server can use to verify the token's signature.
+  - The **issuer-uri** points to the base Authorization Server URI that can be used to verify the _iss_ claim as an added security measure.
+  - Class **OAuth2ResourceServerProperties** (prefix = "spring.security.oauth2.resourceserver")
 - POST localhost:8080/token (with basic authentication) => returns JWT
 - JWTDecoder:
 	- **symmetric** (NimbusJwtDecoder.withSecretKey) or
