@@ -109,6 +109,7 @@ public class SecurityConfig {
                 .requestMatchers(new MvcRequestMatcher(introspector, "/error")).permitAll()
                 .requestMatchers(new MvcRequestMatcher(introspector, "/done")).permitAll()
                 .requestMatchers(new MvcRequestMatcher(introspector, "/access-denied")).permitAll()
+                .requestMatchers(new MvcRequestMatcher(introspector, "/actuator")).permitAll()
                 .requestMatchers(new MvcRequestMatcher(introspector, "/actuator/**")).permitAll()
                 .requestMatchers(new MvcRequestMatcher(introspector, "/h2-console/**")).permitAll()
                 .requestMatchers(new MvcRequestMatcher(introspector, "/favicon.ico")).permitAll()

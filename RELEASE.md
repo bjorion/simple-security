@@ -7,6 +7,7 @@
 * 2023-04-02: (v1.1.2): upgrade to Spring Boot 3.0.5 and update documentation
 * 2023-05-01: (v1.1.3): add public links, update documentation
 * 2023-07-22: (v1.1.4): upgrade to Spring Boot 3.1.2
+* 2023-11-19: (v1.1.5): upgrade to Spring Boot 3.1.5
 
 
 
