@@ -50,14 +50,19 @@ public class SecurityConfig {
         FORM,
 
         /**
-         * OAUTH2 Client: for authentication via OpenID.
+         * OAUTH2 Login: for authentication via OpenID.
          */
-        OAUTH2_CLIENT,
+        OAUTH2_LOGIN,
 
         /**
          * OAUTH2 Resource Server: for authorization only (not authentication)
          */
-        OAUTH2_RS
+        OAUTH2_RS,
+
+        /**
+         * OAUTH2 Client: to implement the Client Credentials grant type
+         */
+        OAUTH2_CLIENT;
     }
 
     @Autowired
@@ -158,7 +163,7 @@ public class SecurityConfig {
                     // formConfig.successHandler(customAuthenticationSuccessHandler);
                 });
             }
-            case OAUTH2_CLIENT -> {
+            case OAUTH2_LOGIN -> {
                 // use OAuth 2.0 and/or OpenID 1.0
                 // Requires a bean of type ClientRegistrationRepository
                 // In application.yml: spring.security.oauth2.client.registration: (...)
@@ -177,6 +182,11 @@ public class SecurityConfig {
                 http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
                         .jwt(Customizer.withDefaults())
                 );
+            }
+            case OAUTH2_CLIENT -> {
+                // configure the app as OAuth 2 client
+                // grant type must be set as "Client Credentials" in Client Registration
+                http.oauth2Client(Customizer.withDefaults());
             }
             default -> {
                 log.error("Undefined login type");

@@ -35,33 +35,7 @@ You have the choice between 4 types of authentication
 
 `UsernamePasswordAuthenticationFilter → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService`
 
-### 1.3. OAuth2 ResourceServer
-
-- NOTE: to invoke the URL below, you'll first need to be **authenticated**,
-  since OAUTH2 is an **authorization** protocol.
-- You need to enable **OAUTH2 RS** in SecurityConfig.java:
-  `setHttpLoginMethod(http, LoginType.OAUTH2_RS);`
-- application.yml:
-  ```yml
-  spring.security.oauth2.resourceserver.jwt:
-    issuer-uri: http://<keycloak server>/realms/<realm>
-    jwk-set-uri: http://<keycloak server>/realms/<realm>/protocol/openid-connect/certs
-  ```
-  - The **jwk-set-uri** contains the public key the server can use to verify the token's signature.
-  - The **issuer-uri** points to the base Authorization Server URI that can be used to verify the _iss_ claim as an added security measure.
-  - Class **OAuth2ResourceServerProperties** (prefix = "spring.security.oauth2.resourceserver")
-- POST localhost:8080/token (with basic authentication) => returns JWT
-- JWTDecoder:
-	- **symmetric** (NimbusJwtDecoder.withSecretKey) or
-	- **asymmetric** (NimbusJwtDecoder.withPublicKey) (encryption = private key; decryption = public key)
-- With the JWT:
-- GET localhost:8080/main
-	- Authorization: Bearer Token: (jwt) => returns main page
-	- Token class: BearerTokenAuthenticationToken
-
-`BearerTokenAuthenticationFilter → ProviderManager → JwtAuthenticationProvider`
-
-### 1.4. OAuth2 Client
+### 1.3. OAuth2 Login
 
 - Here we'll delegate the **authentication** part to GitHub (for instance) using the **OpenID** protocol
 - You need to enable **OAuth2 Client** in SecurityConfig.java:
@@ -80,6 +54,38 @@ You have the choice between 4 types of authentication
   ```
 - GET <u>localhost:8080/login</u>
 - In the login page, there will be a link to Authenticate via GITHUB if application.yml is correctly configured
+
+### 1.4. OAuth2 ResourceServer
+
+- NOTE: to invoke the URL below, you'll first need to be **authenticated**,
+  since OAUTH2 is an **authorization** protocol.
+- You need to enable **OAUTH2 RS** in SecurityConfig.java:
+  `setHttpLoginMethod(http, LoginType.OAUTH2_RS);`
+- application.yml:
+  ```yml
+  spring.security.oauth2.resourceserver.jwt:
+    issuer-uri: http://<keycloak server>/realms/<realm>
+    jwk-set-uri: http://<keycloak server>/realms/<realm>/protocol/openid-connect/certs
+  ```
+  - The **jwk-set-uri** contains the public key the server can use to verify the token's signature.
+  - The **issuer-uri** points to the base Authorization Server URI that can be used to verify the _iss_ claim as an added security measure.
+  - Class **OAuth2ResourceServerProperties** (prefix = "spring.security.oauth2.resourceserver")
+- POST localhost:8080/token (with basic authentication) => returns an **access token** (JWT)
+- JWTDecoder:
+	- **symmetric** (NimbusJwtDecoder.withSecretKey) or
+	- **asymmetric** (NimbusJwtDecoder.withPublicKey) (encryption = private key; decryption = public key)
+- With the JWT:
+- GET localhost:8080/main
+	- Authorization: Bearer Token: (jwt) => returns main page
+	- Token class: BearerTokenAuthenticationToken
+
+`BearerTokenAuthenticationFilter → ProviderManager → JwtAuthenticationProvider`
+
+### 1.5. OAuth2 Client
+
+Allows an application to call another one using the Client Credentials grant type
+(to be developed)
+
 
 ---
 ## 2. Spring Security Classes
@@ -108,6 +114,9 @@ Authentication
 		responsibility to a `UserDetailsService`
 * __AbstractUserDetailsAuthenticationProvider__: provider designed for `UsernamePasswordAuthenticationToken`
 * __AuthenticationEntryPoint__: customizes the response for a failed authentication
+
+* __ClientRegistration__: use this object to define the details the client needs to use the AS
+* __ClientRegistrationRepository__: implement this contract to define the logic that retrieves the client registrations
 
 ```plantuml
 @startuml
@@ -205,8 +214,10 @@ interface GrantedAuthority
 	- OAuth2LoginAuthenticationProvider ---> AuthenticationProvider
 	- OidcAuthorizationCodeAuthenticationProvider ---> AuthenticationProvider
 
+
 ### 2.7. OAuth2 Providers
 
+* (Spring OAuth2 Client).CommonOAuth2Provider: list of well-known providers
 * GitHub: https://github.com/settings/developers
 	- OAuthApps (client id; client secret)
 
