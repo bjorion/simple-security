@@ -213,6 +213,7 @@ interface GrantedAuthority
 	- OAuth2LoginAuthenticationToken ---> AbstractAuthenticationToken
 	- OAuth2LoginAuthenticationProvider ---> AuthenticationProvider
 	- OidcAuthorizationCodeAuthenticationProvider ---> AuthenticationProvider
+    - DefaultOAuth2AuthorizedClientManager ---> OAuth2AuthorizedClientManager
 
 
 ### 2.7. OAuth2 Providers
@@ -224,7 +225,7 @@ interface GrantedAuthority
 ---
 ## 3. Security Filters
 
-To display the list of security filters, set the flag debug to true in the annotation @EnableWebSecurity
+To display the list of security filters, set the flag debug to true in the annotation `@EnableWebSecurity`
 
 ```java
 @EnableWebSecurity(debug = true)
@@ -301,8 +302,9 @@ To display the list of security filters, set the flag debug to true in the annot
 
 ### 5.2. Books
 
-* Spring Security in Action
+* Spring Security in Action (2 editions)
 	- https://www.manning.com/books/spring-security-in-action
+    - https://www.manning.com/books/spring-security-in-action-second-edition
 	
 ### 5.3. Videos
 

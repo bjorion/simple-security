@@ -72,6 +72,7 @@ public class SecurityConfig {
     private JpaUserDetailsService jpaUserDetailsService;
 
     @Autowired
+    @SuppressWarnings("unused")
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Autowired
@@ -80,13 +81,16 @@ public class SecurityConfig {
     @Value("jwt.symmetric-key")
     private String jwtSymmetricKey;
 
-//	@Bean
-//	public AuthenticationManager authManager(UserDetailsService userDetailsService) {
-//		
-//		var authProvider = new DaoAuthenticationProvider();
-//		authProvider.setUserDetailsService(userDetailsService);
-//		return new ProviderManager(authProvider);
-//	}
+    /*
+     * Code below only kept for reference purposes
+     * <pre>
+     * public AuthenticationManager authManager(UserDetailsService userDetailsService) {
+     *	var authProvider = new DaoAuthenticationProvider();
+     *	authProvider.setUserDetailsService(userDetailsService);
+     *	return new ProviderManager(authProvider);
+     * }
+     * </pre>
+     */
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -187,6 +191,8 @@ public class SecurityConfig {
                 // configure the app as OAuth 2 client
                 // grant type must be set as "Client Credentials" in Client Registration
                 http.oauth2Client(Customizer.withDefaults());
+                // there must be a "ClientRegistrationRepository" bean defined that
+                // provides a "ClientRegistration" to contact the AS via a "ClientManager"
             }
             default -> {
                 log.error("Undefined login type");
@@ -194,6 +200,7 @@ public class SecurityConfig {
         }
     }
 
+    // Utility method to disable a HTTP Session
     private void disableSession(HttpSecurity http) throws Exception {
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
