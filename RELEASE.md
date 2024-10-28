@@ -9,6 +9,7 @@
 * 2023-07-22: (v1.1.4): upgrade to Spring Boot 3.1.2
 * 2023-11-19: (v1.1.5): upgrade to Spring Boot 3.1.5, OAuth2 client added
 * 2023-11-28: (v1.1.6): upgrade to Spring Boot 3.2.0
+* 2024-10-28: (v1.1.7): upgrade to Spring Boot 3.3.5 and Java 21
 
 
 
