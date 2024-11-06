@@ -12,7 +12,7 @@
 
 ## 1. Login
 
-You have the choice between 3 types of authentication: `basic, form, oauth2`
+You have the choice between 3 types of authentication: `basic`, `form`, `oauth2`
 
 ### 1.1. Basic
 
@@ -38,7 +38,7 @@ You have the choice between 3 types of authentication: `basic, form, oauth2`
 
 ### 1.3. OAuth2
 
-- You need to enable **Form** authentication in SecurityConfig.java:
+- You need to enable **OAuth** authentication in SecurityConfig.java:
   `setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);`
 
 #### Grant types
