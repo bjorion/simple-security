@@ -1,0 +1,31 @@
+@startuml
+
+UserDetailsManager --|> UserDetailsService : .extends
+
+UserDetailsService ..|> UserDetails : .uses
+
+note top of UserDetails
+   The <b>UserDetails</b> represents the user
+   as understood by <i>Spring Security</i>.
+   The class of your application that describes
+   the user has to implement this interface
+   so that the framework can understand it.
+end note
+
+UserDetails *--{ GrantedAuthority : .has one or more
+
+interface UserDetailsManager
+
+interface UserDetailsService {
+	UserDetails loadUserByUsername()
+}
+
+interface UserDetails {
+	username
+	password
+	authorities
+}
+
+interface GrantedAuthority
+
+@enduml

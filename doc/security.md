@@ -12,7 +12,7 @@
 
 ## 1. Login
 
-You have the choice between 4 types of authentication
+You have the choice between 3 types of authentication: `basic, form, oauth2`
 
 ### 1.1. Basic
 
@@ -36,73 +36,95 @@ You have the choice between 4 types of authentication
 
 `UsernamePasswordAuthenticationFilter → ProviderManager → DaoAuthenticationProvider → JpaUserDetailsService`
 
-### 1.3. OAuth2 Login
+### 1.3. OAuth2
 
-- Here we'll delegate the **authentication** part to GitHub (for instance) using the **OpenID** protocol
-- You need to enable **OAuth2 Client** in SecurityConfig.java:
+- You need to enable **Form** authentication in SecurityConfig.java:
   `setHttpLoginMethod(http, LoginType.OAUTH2_CLIENT);`
-- application.yml:
-  ```yml
-  spring.security.oauth2.client.registration.<name>:
-    client-id: ..
-    client-secret: ...
-    redirect-uri: http://localhost:8080/login/oauth2/code/oauth2-client-credentials
-    scope: openid, profile, roles...
-    authorization-grant-type:
-    provider: <provider>
-  spring.security.oauth2.client.registration.provider.<provider>:
-    issuer-uri: http://<keycloak server>/realms/<realm>
-  ```
-- GET <u>localhost:8080/login</u>
-- In the login page, there will be a link to Authenticate via GITHUB if application.yml is correctly configured
 
-### 1.4. OAuth2 ResourceServer
+#### Grant types
 
-- NOTE: to invoke the URL below, you'll first need to be **authenticated**,
-  since OAUTH2 is an **authorization** protocol.
-- You need to enable **OAUTH2 RS** in SecurityConfig.java:
-  `setHttpLoginMethod(http, LoginType.OAUTH2_RS);`
-- application.yml:
-  ```yml
-  spring.security.oauth2.resourceserver.jwt:
-    issuer-uri: http://<keycloak server>/realms/<realm>
-    jwk-set-uri: http://<keycloak server>/realms/<realm>/protocol/openid-connect/certs
-  ```
-    - The **jwk-set-uri** contains the public key the server can use to verify the token's signature.
-    - The **issuer-uri** points to the base Authorization Server URI that can be used to verify the _iss_ claim as an
-      added security measure.
-    - Class **OAuth2ResourceServerProperties** (prefix = "spring.security.oauth2.resourceserver")
-- POST localhost:8080/token (with basic authentication) => returns an **access token** (JWT)
-- JWTDecoder:
-    - **symmetric** (NimbusJwtDecoder.withSecretKey) or
-    - **asymmetric** (NimbusJwtDecoder.withPublicKey) (encryption = private key; decryption = public key)
-- With the JWT:
-- GET localhost:8080/main
-    - Authorization: Bearer Token: (jwt) => returns main page
-    - Token class: BearerTokenAuthenticationToken
+The main grant types (workflows) are:
 
-`BearerTokenAuthenticationFilter → ProviderManager → JwtAuthenticationProvider`
+1. Authorization Code
+2. PKCE (like Authorization Code, but more secure)
+3. Client Credentials (for machine-to-machine communication)
+4. Implicit Flow (like Authorization Code, but less secure) - DEPRECATED
+5. Password Grant (where username/password are exchanged on the network) - DEPRECATED
 
-### 1.5. OAuth2 Client
+#### Architecture
 
-Allows an application to call another one using the Client Credentials grant type
-(to be developed)
+![](./architecture.png)
 
+#### OAuth2 AuthorizationServer (AS)
 
+- Handles authentication (the name is misleading) and issues OAuth2 tokens
+
+```yml
+spring:
+  security:
+    oauth2:
+      authorizationserver:
+        # this server
+        issuer: "http://<as-server>"
+```
+
+#### OAuth2 ResourceServer (RS)
+
+- Protects your valuable data (resources)
+- Needs a connection to the AS to validate a token from the client
+
+```yml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://<as-server>/realms/<realm>"
+          jwt-set-uri: "http://<as-server>/realms/<realm>/protocol/openid-connect/certs"
+```
+
+- The **jwk-set-uri** contains the public key the server can use to verify the token's signature.
+- The **issuer-uri** points to the base Authorization Server URI that can be used to verify the _iss_ claim as an
+  added security measure.
+- Class **OAuth2ResourceServerProperties** (prefix = "spring.security.oauth2.resourceserver")
+
+#### OAuth2 Client
+
+- Your application making the secure calls to access the data (resources)
+
+```yml
+spring:
+  security:
+    oauth2:
+      client:
+        # class ClientRegistration in oauth2-client
+        registration:
+          my-client-application:
+            provider: my-provider
+            client-id: my-client
+            client-secret: my-secret
+            authorization-grant-type: client_credentials | authorization_code ...
+            scope: read ...
+        provider:
+          # cf. above
+          my-provider:
+            token-uri: "http://<as-server>/oauth2/token"
+```
+  
 ---
 
 ## 2. Spring Security Classes
 
 ### 2.1. Overview of the main classes
 
-Filter
+Filters
 
 | Class                | Description                                                                         |
 |----------------------|-------------------------------------------------------------------------------------|
 | GenericFilterBean    | anything that wants to be a Filter in the Spring world                              |
 | OncePerRequestFilter | even if the same filter is registered multiple times, it will be executed only once |
 
-User
+UserDetails
 
 | Class              | Description                                                                     |
 |--------------------|---------------------------------------------------------------------------------|
@@ -124,103 +146,62 @@ Authentication
 | ClientRegistration                        | use this object to define the details the client needs to use the AS                                                      |
 | ClientRegistrationRepository              | implement this contract to define the logic that retrieves the client registrations                                       |
 
-```plantuml
-@startuml xyz
+### 2.2. UserDetails hierarchy
 
-interface AuthenticationProvider {
-	boolean supports(Class<?> authentication);
-	Authentication authenticated(Authentication authentication) throws AuthenticationException
-}
+![](./user-details.png)
 
-@enduml
-```
+### 2.3. AbstractAuthenticationProcessingFilter (extensions)
 
-```plantuml
-@startuml
-
-UserDetailsManager --|> UserDetailsService : .extends
-
-UserDetailsService ..|> UserDetails : .uses
-
-note top of UserDetails
-   The <b>UserDetails</b> represents the user 
-   as understood by <i>Spring Security</i>. 
-   The class of your application that describes 
-   the user has to implement this interface 
-   so that the framework can understand it.
-end note
-
-UserDetails *--{ GrantedAuthority : .has one or more
-
-interface UserDetailsManager
-
-interface UserDetailsService {
-	UserDetails loadUserByUsername()
-}
-
-interface UserDetails {
-	username
-	password
-	authorities
-}
-
-interface GrantedAuthority
-
-@enduml
-```
-
-### 2.2. AbstractAuthenticationProcessingFilter (extensions)
-
-| Class                                | Extension                                                                                 |
+| Class                                | Extends                                                                                   |
 |--------------------------------------|-------------------------------------------------------------------------------------------|
 | UsernamePasswordAuthenticationFilter | (token = UsernamePasswordAuthenticationToken) ---> AbstractAuthenticationProcessingFilter |
 | (custom).JwtClientCredentialFilter   | (token = JwtClientCredentialToken) ---> AbstractAuthenticationProcessingFilter            |
 | OAuth2LoginAuthenticationFilter      | (token = OAuth2LoginAuthenticationToken) ---> AbstractAuthenticationProcessingFilter      |
 
-### 2.3. AuthenticationManager (implementations)
+### 2.4. AuthenticationManager (implementations)
 
-| Class           | Description                                                                                              |
-|-----------------|----------------------------------------------------------------------------------------------------------|
-| ProviderManager | (iterates an Authentication request through a list of AuthenticationProvider) ---> AuthenticationManager |
+| Class           | Implements                                                                      |
+|-----------------|---------------------------------------------------------------------------------|
+| ProviderManager | (iterates through a list of AuthenticationProviders) ---> AuthenticationManager |
 
-### 2.4. AuthenticationProvider (implementations)
+### 2.5. AuthenticationProvider (implementations)
 
-| Class                                       | Extension                                                                  |
+| Class                                       | Extends                                                                    |
 |---------------------------------------------|----------------------------------------------------------------------------|
 | DaoAuthenticationProvider                   | ---> AbstractUserDetailsAuthenticationProvider ---> AuthenticationProvider |
 | JwtAuthenticationProvider                   | ---> AuthenticationProvider                                                |
 | OAuth2LoginAuthenticationProvider           | ---> AuthenticationProvider                                                |
 | OidcAuthorizationCodeAuthenticationProvider | ---> AuthenticationProvider                                                |
 
-### 2.5. UserDetailsService (implementations)
+### 2.6. UserDetailsService (implementations)
 
-| Class                           | Extension                                       |
+| Class                           | Extends                                         |
 |---------------------------------|-------------------------------------------------|
 | InMemoryUserDetailsManager      | ---> UserDetailsManager ---> UserDetailsService |
 | JdbcUserDetailsManager          | ---> UserDetailsManager ---> UserDetailsService |
 | JpaUserDetailsService           | ---> UserDetailsService                         |
 | (custom).UserDetailsServiceImpl | ---> UserDetailsService                         |
 
-### 2.6. Spring OAuth2
+### 2.7. Spring OAuth2 dependencies
 
 [Spring Security modules](https://docs.spring.io/spring-security/reference)
 
-* spring-security-oauth2-authorization-server
+* **spring-security-oauth2-authorization-server**
     - AuthorizationServerSettings
 
-* spring-security-oauth2-resource-server
+* **spring-security-oauth2-resource-server**
     - JwtAuthenticationProvider ---> AuthenticationProvider
     - BearerTokenAuthenticationToken ---> AbstractAuthenticationToken
     - BearerTokenAuthenticationFilter ---> OncePerRequestFilter
 
-* spring-security-oauth2-client
+* **spring-security-oauth2-client**
     - OAuth2LoginAuthenticationFilter ---> AbstractAuthenticationProcessingFilter ---> GenericFilterBean
     - OAuth2LoginAuthenticationToken ---> AbstractAuthenticationToken
     - OAuth2LoginAuthenticationProvider ---> AuthenticationProvider
     - OidcAuthorizationCodeAuthenticationProvider ---> AuthenticationProvider
     - DefaultOAuth2AuthorizedClientManager ---> OAuth2AuthorizedClientManager
 
-### 2.7. OAuth2 Providers
+### 2.8. OAuth2 Providers
 
 * (Spring OAuth2 Client).CommonOAuth2Provider: list of well-known providers
 * GitHub: https://github.com/settings/developers
@@ -233,7 +214,11 @@ interface GrantedAuthority
 To display the list of security filters, set the flag debug to true in the annotation `@EnableWebSecurity`
 
 ```java
+
 @EnableWebSecurity(debug = true)
+public class SecurityConfig {
+    // ...
+}
 ```
 
 **Before**
@@ -247,20 +232,20 @@ To display the list of security filters, set the flag debug to true in the annot
 
 **BASIC**
 
-- org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+- `org.springframework.security.web.authentication.www.BasicAuthenticationFilter`
 
 **FORM**
 
-- org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+- `org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter`
 
 **OAUTH CLIENT**
 
-- org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter
-- org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter
+- `org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter`
+- `org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter`
 
 **OAUTH RS**
 
-- org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
+- `org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter`
 
 **After**
 
@@ -314,6 +299,8 @@ JWKSource generateJwtSource() {
 
 ### 5.3. Videos
 
+* Spring Security: RestClient Support for OAuth2
+    - https://www.youtube.com/watch?v=nFKcJDpUuZ8
 * Spring Security JWT: How to Secure your Spring Boot Rest API with JWT
     - https://www.youtube.com/watch?v=KYNR5js2cXE
 * Spring Security JWT: Secure your REST APIs with Spring Security & Symmetric Key Encryption
@@ -326,3 +313,7 @@ JWKSource generateJwtSource() {
     - https://www.youtube.com/watch?v=LlVy9Roh_bQ
 * Spring Security, demystified
     - https://www.youtube.com/watch?v=iJ2muJniikY
+
+### 5.4. GitHub
+
+- https://github.com/danvega/golf-scheduler/blob/main/README.md
