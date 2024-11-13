@@ -32,8 +32,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -75,9 +73,6 @@ public class SecurityConfig {
     @SuppressWarnings("unused")
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
-    @Autowired
-    private HandlerMappingIntrospector introspector;
-
     @Value("jwt.symmetric-key")
     private String jwtSymmetricKey;
 
@@ -114,16 +109,16 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request -> request
                 // open
-                .requestMatchers(new MvcRequestMatcher(introspector, "/public")).permitAll()
-                .requestMatchers(new MvcRequestMatcher(introspector, "/error")).permitAll()
-                .requestMatchers(new MvcRequestMatcher(introspector, "/done")).permitAll()
-                .requestMatchers(new MvcRequestMatcher(introspector, "/access-denied")).permitAll()
-                .requestMatchers(new MvcRequestMatcher(introspector, "/actuator")).permitAll()
-                .requestMatchers(new MvcRequestMatcher(introspector, "/actuator/**")).permitAll()
-                .requestMatchers(new MvcRequestMatcher(introspector, "/h2-console/**")).permitAll()
-                .requestMatchers(new MvcRequestMatcher(introspector, "/favicon.ico")).permitAll()
+                .requestMatchers("/public").permitAll()
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/done").permitAll()
+                .requestMatchers("/access-denied").permitAll()
+                .requestMatchers("/actuator").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/favicon.ico").permitAll()
                 // restricted
-                .requestMatchers(new MvcRequestMatcher(introspector, "/write")).hasAuthority("WRITE")
+                .requestMatchers("/write").hasAuthority("WRITE")
                 .anyRequest().authenticated()
         );
 
