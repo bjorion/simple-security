@@ -12,7 +12,7 @@ import java.io.IOException;
 /**
  * Customize the response for a failed authentication
  */
-@Slf4
+@Slf4j
 @SuppressWarnings("unused")
 public class CustomEntryPoint implements AuthenticationEntryPoint {
 
