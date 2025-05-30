@@ -1,6 +1,5 @@
 package org.jorion.simplesecurity.security;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,8 @@ import java.io.IOException;
 /**
  * Customize the response for a failed authentication
  */
-@Slf4j
+@Slf4
+@SuppressWarnings("unused")
 public class CustomEntryPoint implements AuthenticationEntryPoint {
 
     @Override

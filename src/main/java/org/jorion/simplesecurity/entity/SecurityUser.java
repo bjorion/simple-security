@@ -1,6 +1,5 @@
 package org.jorion.simplesecurity.entity;
 
-import lombok.Getter;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
