@@ -1,6 +1,7 @@
 package org.jorion.simplesecurity.entity;
 
-import lombok.ToString;
+import lombok.Getter;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,30 +12,19 @@ import java.util.stream.Collectors;
 /**
  * Implement the class {@link UserDetails} and wraps the {@link Person} entity.
  */
-public final class SecurityUser implements UserDetails {
-
-    private final Person person;
-
-    public SecurityUser(Person person) {
-        this.person = person;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
+public record SecurityUser(Person person) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        Collection<? extends GrantedAuthority> authorities =
-                person.getAuthorities()
-                        .stream()
-                        .map(a -> new SimpleGrantedAuthority(a.getName()))
-                        .collect(Collectors.toList());
-        return authorities;
+        return person.getAuthorities()
+                .stream()
+                .map(a -> new SimpleGrantedAuthority(a.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override
+    @NonNull
     public String toString() {
 
         return "SecurityUser [username=" + getUsername() + "]";

@@ -44,24 +44,24 @@ public class MainPageController {
                 principal.getClass().getName());
 
         // OAuth2 User
-        if (principal instanceof DefaultOAuth2User user) {
-            user.getAuthorities().forEach(e -> log.debug("OAuth2User: Authority [{}]", e.getAuthority()));
-            user.getAttributes().forEach((key, value) -> log.trace(key + ": " + value));
-            name = user.getAttribute("name");
-        }
-        // Security User
-        else if (principal instanceof SecurityUser user) {
-            user.getAuthorities().forEach(e -> log.debug("SecurityUser: Authority [{}]", e.getAuthority()));
-            name = user.getUsername();
-        }
-        // Spring User
-        else if (principal instanceof User user) {
-            user.getAuthorities().forEach(e -> log.debug("SpringUser: Authority [{}]", e.getAuthority()));
-            name = user.getUsername();
-        }
-        // Else
-        else {
-            name = auth.getName();
+        switch (principal) {
+            case DefaultOAuth2User user -> {
+                user.getAuthorities().forEach(e -> log.debug("OAuth2User: Authority [{}]", e.getAuthority()));
+                user.getAttributes().forEach((key, value) -> log.trace(key + ": " + value));
+                name = user.getAttribute("name");
+            }
+            // Security User
+            case SecurityUser user -> {
+                user.getAuthorities().forEach(e -> log.debug("SecurityUser: Authority [{}]", e.getAuthority()));
+                name = user.getUsername();
+            }
+            // Spring User
+            case User user -> {
+                user.getAuthorities().forEach(e -> log.debug("SpringUser: Authority [{}]", e.getAuthority()));
+                name = user.getUsername();
+            }
+            // Else
+            default -> name = auth.getName();
         }
 
         return name;

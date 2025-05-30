@@ -18,7 +18,7 @@ public class CustomEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
-            throws IOException, ServletException {
+            throws IOException {
 
         log.info("Request URI [{}], Authentication Exception [{}]", request.getRequestURI(), authException.getMessage());
         response.addHeader("message", "Luke, I am your father!");

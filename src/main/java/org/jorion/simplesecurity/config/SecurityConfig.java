@@ -196,7 +196,7 @@ public class SecurityConfig {
         }
     }
 
-    // Utility method to disable a HTTP Session
+    // Utility method to disable an HTTP Session
     private void disableSession(HttpSecurity http) throws Exception {
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
