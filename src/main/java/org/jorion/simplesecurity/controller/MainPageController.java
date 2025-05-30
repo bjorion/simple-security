@@ -47,7 +47,7 @@ public class MainPageController {
         switch (principal) {
             case DefaultOAuth2User user -> {
                 user.getAuthorities().forEach(e -> log.debug("OAuth2User: Authority [{}]", e.getAuthority()));
-                user.getAttributes().forEach((key, value) -> log.trace(key + ": " + value));
+                user.getAttributes().forEach((key, value) -> log.trace("{}: {}", key, value));
                 name = user.getAttribute("name");
             }
             // Security User
