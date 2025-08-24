@@ -190,9 +190,7 @@ public class SecurityConfig {
                 // there must be a "ClientRegistrationRepository" bean defined that
                 // provides a "ClientRegistration" to contact the AS via a "ClientManager"
             }
-            default -> {
-                log.error("Undefined login type");
-            }
+            default -> log.error("Undefined login type");
         }
     }
 

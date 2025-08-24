@@ -11,6 +11,7 @@
 * 2023-11-28: (v1.1.6): upgrade to Spring Boot 3.2.0
 * 2024-10-28: (v1.1.7): upgrade to Spring Boot 3.3.5 and Java 21
 * 2025-05-30: (v1.1.8): upgrade to Spring Boot 3.5.0
+* 2025-08-24: (v1.1.9): upgrade to Spring Boot 3.5.5
 
 
 
