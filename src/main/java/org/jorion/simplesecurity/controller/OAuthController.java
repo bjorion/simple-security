@@ -1,8 +1,8 @@
 package org.jorion.simplesecurity.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jorion.simplesecurity.service.JwtTokenService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class OAuthController {
 
-    @Autowired
-    private JwtTokenService tokenService;
+    private final JwtTokenService tokenService;
 
     /**
      * Once the user is authenticated (normally via a request token), we'll generate
@@ -31,7 +31,7 @@ public class OAuthController {
     @GetMapping(value = "/user", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> user(Authentication authentication) {
 
-        String body = authentication.toString();
+        var body = authentication.toString();
         return ResponseEntity.ok(body);
     }
 

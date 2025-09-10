@@ -1,9 +1,9 @@
 package org.jorion.simplesecurity.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jorion.simplesecurity.entity.SecurityUser;
 import org.jorion.simplesecurity.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class MainPageController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
     @GetMapping("/main")
     public String mainPage(Authentication auth, Model model) {
@@ -63,7 +63,6 @@ public class MainPageController {
             // Else
             default -> name = auth.getName();
         }
-
         return name;
     }
 }
