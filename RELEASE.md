@@ -13,6 +13,7 @@
 * 2025-05-30: (v1.1.8): upgrade to Spring Boot 3.5.0
 * 2025-08-24: (v1.1.9): upgrade to Spring Boot 3.5.5
 * 2025-09-10: (v1.1.10): add Spring Modulith
+* 2025-10-19: (v1.1.11): upgrade to JDK 25
 
 
 
