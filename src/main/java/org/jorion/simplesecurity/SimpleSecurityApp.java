@@ -21,6 +21,7 @@ public class SimpleSecurityApp {
     }
 
     @Bean
+    @SuppressWarnings("unused")
     CommandLineRunner commandLineRunner(ObservationRegistry observationRegistry) {
 
         return args -> log.info("ARGS {}", Arrays.toString(args));
