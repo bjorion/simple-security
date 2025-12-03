@@ -1,6 +1,6 @@
 package org.jorion.simplesecurity.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -13,18 +13,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class JwtTokenService {
 
-    @Autowired
-    private JwtEncoder encoder;
+    private final JwtEncoder encoder;
 
     public String generateToken(Authentication auth) {
 
-        Instant now = Instant.now();
-        String scope = auth.getAuthorities().stream()
+        var now = Instant.now();
+        var scope = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+        var claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plus(1, ChronoUnit.HOURS))

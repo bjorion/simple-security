@@ -1,5 +1,6 @@
 package org.jorion.simplesecurity.controller;
 
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jorion.simplesecurity.service.JwtTokenService;

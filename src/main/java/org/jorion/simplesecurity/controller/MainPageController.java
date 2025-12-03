@@ -25,7 +25,7 @@ public class MainPageController {
     @GetMapping("/main")
     public String mainPage(Authentication auth, Model model) {
 
-        String name = logInfo(auth);
+        var name = logInfo(auth);
         log.info("/main, name [{}]", name);
         model.addAttribute("username", name);
         model.addAttribute("products", productService.findAll());
@@ -39,7 +39,8 @@ public class MainPageController {
         }
 
         String name;
-        Object principal = auth.getPrincipal();
+        var principal = auth.getPrincipal();
+        assert principal != null;
         log.info("UserName [{}], Authentication [{}], Principal [{}]", auth.getName(), auth.getClass().getSimpleName(),
                 principal.getClass().getName());
 

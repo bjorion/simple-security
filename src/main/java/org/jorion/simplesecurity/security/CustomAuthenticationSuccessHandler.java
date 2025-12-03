@@ -1,5 +1,6 @@
 package org.jorion.simplesecurity.security;
 
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,8 @@ import java.io.IOException;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+    public void onAuthenticationSuccess(
+            @Nonnull HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
 
         log.debug("User name [{}]", authentication.getName());

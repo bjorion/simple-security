@@ -1,5 +1,6 @@
 package org.jorion.simplesecurity.security;
 
+import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -32,19 +33,18 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
 
-        String username = authentication.getName();
-        String password = authentication.getCredentials().toString();
-
-        UserDetails u = userDetailsService.loadUserByUsername(username);
-        if (passwordEncoder.matches(password, u.getPassword())) {
-            return new UsernamePasswordAuthenticationToken(username, password, u.getAuthorities());
+        var username = authentication.getName();
+        var password = (authentication.getCredentials() == null) ? null : authentication.getCredentials().toString();
+        var userDetails = userDetailsService.loadUserByUsername(username);
+        if (passwordEncoder.matches(password, userDetails.getPassword())) {
+            return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
         } else {
             throw new BadCredentialsException("Something went wrong!");
         }
     }
 
     @Override
-    public boolean supports(Class<?> authenticationType) {
+    public boolean supports(@Nonnull Class<?> authenticationType) {
 
         log.debug("supports? [{}]", authenticationType);
         return authenticationType.equals(UsernamePasswordAuthenticationToken.class);

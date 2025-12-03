@@ -1,5 +1,6 @@
 package org.jorion.simplesecurity.service;
 
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jorion.simplesecurity.entity.SecurityUser;
@@ -28,7 +29,8 @@ public class JpaUserDetailsService implements UserDetailsService {
      * Override {@code UserDetails loadUserByUsername(...)}
      */
     @Override
-    public SecurityUser loadUserByUsername(String username)
+    @Nonnull
+    public SecurityUser loadUserByUsername(@Nonnull String username)
             throws UsernameNotFoundException {
 
         Supplier<UsernameNotFoundException> supplierNotFound =

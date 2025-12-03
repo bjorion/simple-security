@@ -15,7 +15,7 @@ import java.util.Arrays;
 @PropertySource(value = "classpath:META-INF/build-info.properties", ignoreResourceNotFound = true)
 public class SimpleSecurityApp {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
 
         SpringApplication.run(SimpleSecurityApp.class, args);
     }
