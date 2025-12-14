@@ -145,8 +145,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private void setHttpLoginMethod(HttpSecurity http, LoginType loginType)
-            throws Exception {
+    private void setHttpLoginMethod(HttpSecurity http, LoginType loginType) {
 
         switch (loginType) {
             case BASIC -> {
@@ -199,8 +198,7 @@ public class SecurityConfig {
 
     // Utility method to disable an HTTP Session
     @SuppressWarnings("unused")
-    private void disableSession(HttpSecurity http)
-            throws Exception {
+    private void disableSession(HttpSecurity http) {
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     }
