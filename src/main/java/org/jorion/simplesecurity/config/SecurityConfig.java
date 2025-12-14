@@ -91,7 +91,7 @@ public class SecurityConfig {
      */
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) {
 
         log.debug("SecurityFilterChain configuration");
         http
