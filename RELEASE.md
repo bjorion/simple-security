@@ -15,6 +15,7 @@
 * 2025-09-10: (v1.1.10): add Spring Modulith
 * 2025-10-19: (v1.1.11): upgrade to JDK 25
 * 2025-12-03: (v1.1.12): upgrade to Spring Boot 4.0.0
+* 2025-12-14: (v1.1.13): fix - add spring boot h2 dependency; solve lombok issues
 
 
 

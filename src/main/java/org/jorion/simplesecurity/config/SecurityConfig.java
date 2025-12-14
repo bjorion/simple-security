@@ -35,9 +35,12 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * To enable security debugging, use {@code @EnableWebSecurity(debug = true)}.
+ */
 @Slf4j
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity()
 @EnableConfigurationProperties(RsaKeyProperties.class)
 public class SecurityConfig {
 
