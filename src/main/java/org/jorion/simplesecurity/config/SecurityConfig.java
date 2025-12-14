@@ -172,7 +172,7 @@ public class SecurityConfig {
                 log.info("Setting up OAUTH2 CLIENT security");
                 // this method adds "OAuth2LoginAuthenticationFilter" to the filter chain
                 // this filter intercepts requests and applies the needed logic for OAuth2 authentication
-                http.oauth2Login(oauth2Config -> {
+                http.oauth2Login(_ -> {
                     // oauth2Config.defaultSuccessUrl("/main", true);
                 });
             }
